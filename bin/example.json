@@ -1,0 +1,121 @@
+{
+    "name": "Test",
+    "description": "",
+    "stamp": [
+        "26.02.2019",
+        "21:37:00"
+    ],
+    "members": [
+        {
+            "name": "Sara",
+            "stamp": [
+                "26.02.2019",
+                "21:38:56"
+            ]
+        },
+        {
+            "name": "Florian",
+            "stamp": [
+                "26.02.2019",
+                "21:37:12"
+            ]
+        },
+        {
+            "name": "Thomas",
+            "stamp": [
+                "26.02.2019",
+                "21:39:02"
+            ]
+        },
+        {
+            "name": "Philipp",
+            "stamp": [
+                "26.02.2019",
+                "21:39:02"
+            ]
+        }
+    ],
+    "purchases": [
+        {
+            "amount": 120.0,
+            "name": "t",
+            "description": "dfvdvdv",
+            "stamp": [
+                "26.02.2019",
+                "21:53:57"
+            ],
+            "purchaser": "Philipp",
+            "recipients": [
+                "Florian"
+            ]
+        },
+        {
+            "amount": 100.0,
+            "name": "t",
+            "description": "dfvdvdv",
+            "stamp": [
+                "26.02.2019",
+                "21:53:57"
+            ],
+            "purchaser": "Florian",
+            "recipients": [
+                "Philipp"
+            ]
+        },
+        {
+            "amount": 23.33,
+            "name": "t",
+            "description": "dfvdvdv",
+            "stamp": [
+                "26.02.2019",
+                "21:53:57"
+            ],
+            "purchaser": "Sara",
+            "recipients": [
+                "Philipp",
+                "Sara"
+            ]
+        },
+        {
+            "amount": 1200.0,
+            "name": "sdvsdddd",
+            "description": "sdvdvsdvdvsdv",
+            "stamp": [
+                "28.02.2019",
+                "07:16:36"
+            ],
+            "purchaser": "Philipp",
+            "recipients": [
+                "Sara"
+            ]
+        }
+    ],
+    "transfers": [
+        {
+            "amount": 11.66,
+            "name": "Balance",
+            "description": "",
+            "stamp": [
+                "28.02.2019",
+                "07:13:59"
+            ],
+            "purchaser": "Florian",
+            "recipients": [
+                "Sara"
+            ]
+        },
+        {
+            "amount": 8.34,
+            "name": "Bal",
+            "description": "",
+            "stamp": [
+                "28.02.2019",
+                "07:16:06"
+            ],
+            "purchaser": "Florian",
+            "recipients": [
+                "Philipp"
+            ]
+        }
+    ]
+}
