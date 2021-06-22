@@ -22,4 +22,4 @@
 from .member import Member
 from .purchase import Purchase
 from .transfer import Transfer
-from .group import GROUP, loadJson
+from .group import Group, loadJson

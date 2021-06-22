@@ -26,7 +26,7 @@ from .purchase import Purchase
 from .transfer import Transfer
 
 
-class GROUP():
+class Group():
     def __init__(self, name, description='', stamp=now()):
         self.name = name
         self.description = description
@@ -83,7 +83,7 @@ class GROUP():
                     )
 
         for balance in tmpBalances:
-            print(repr(balance))
+            print(balance)
             balance._remove()
 
     def _serialize(self):
@@ -110,7 +110,7 @@ def loadJson(path):
     with open(path, 'r') as f:
         data = json.load(f)
 
-    tmp = GROUP(data['name'], data['description'], data['stamp'])
+    tmp = Group(data['name'], data['description'], data['stamp'])
 
     for member in data['members']:
         tmp.addMember(member['name'], stamp=member['stamp'])

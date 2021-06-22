@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import argparse
-from pysplit import GROUP, loadJson
+from pysplit import Group, loadJson
 
 
 def main():
@@ -42,7 +42,7 @@ def main():
     else:
         inp_name = input(' >>> Group name: ')
         inp_description = input(' >>> Group description: ')
-        group = GROUP(inp_name, description=inp_description)
+        group = Group(inp_name, description=inp_description)
 
     if args.member:
         inp_name = input(' >>> Member name: ')
@@ -69,6 +69,12 @@ def main():
             inp_amount), inp_name, inp_description)
 
     # print the results
+    for p in group.purchases:
+        print(p)
+
+    for t in group.transfers:
+        print(t)
+
     group.printBalance()
 
     # store the group in the existing file or create a new one
