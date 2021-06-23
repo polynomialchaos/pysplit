@@ -24,14 +24,14 @@ from .transfer import Transfer
 
 
 class Balance(Transfer):
-    def __init__(self, group, purchaser, recipient, amount, date=now(), stamp=now()):
+    def __init__(self, group, purchaser, recipient, amount, date=now(), currency=None, stamp=now()):
         super().__init__(group, purchaser, recipient, amount, date=date,
-                         title='balance', description='pending', stamp=stamp)
+                         title='balance', description='pending', currency=currency, stamp=stamp)
 
     def add_transfer(self):
         recipients = list(self.recipients.keys())
         self.group.add_transfer(self.purchaser.name, recipients, self.amount, date=self.date,
-                                title='balance', description='')
+                                title='balance', description='', currency=self.currency)
 
     def _link(self):
         pass

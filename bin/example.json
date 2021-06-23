@@ -1,6 +1,7 @@
 {
     "name": "pysplit",
     "description": "A simple python package for money pool split development.",
+    "currency": "Euro",
     "members": [
         {
             "name": "member_1",
@@ -19,6 +20,7 @@
                 "member_2"
             ],
             "amount": 100.0,
+            "currency": "Euro",
             "date": "23.06.2021 07:54:09",
             "title": "purchase_1",
             "description": "",
@@ -30,6 +32,7 @@
                 "member_2"
             ],
             "amount": 100.0,
+            "currency": "Euro",
             "date": "23.06.2021 07:54:21",
             "title": "purchase_2",
             "description": "",
@@ -42,6 +45,7 @@
                 "member_2"
             ],
             "amount": 200.0,
+            "currency": "USD",
             "date": "23.06.2021 07:57:19",
             "title": "purchase_3",
             "description": "",
@@ -49,5 +53,11 @@
         }
     ],
     "transfers": [],
+    "exchange_rates": {
+        "Euro": {
+            "Euro": 1,
+            "USD": 1.19
+        }
+    },
     "stamp": "23.06.2021 07:53:55"
 }

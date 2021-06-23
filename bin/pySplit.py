@@ -25,20 +25,6 @@ from pysplit.utils import NoValidMemberNameError, now
 
 
 def main():
-    # group = Group('test', 'a sample tsest')
-    # group.add_member('Florian')
-    # group.add_member('Floria2')
-    # # print(group.get_member('Florian'))
-
-    # # print(group.members)
-
-    # sumi = 0
-    # for i in range(10):
-    #     p = group.add_purchase('Florian', ['Florian', 'Floria2'], i + 0.33)
-    #     sumi += i
-
-    # group()
-
     # define the argument parser
     parser = argparse.ArgumentParser(
         description='pysplit - A simple python package for money pool split development.')

@@ -19,17 +19,12 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-class DuplicateMemberError(Exception):
-    pass
+from enum import Enum, unique
 
 
-class MissingExchangeRateError(Exception):
-    pass
+class Currency(Enum):
+    Euro = '€'
+    USD = '$'
 
-
-class NoMemberError(Exception):
-    pass
-
-
-class NoValidMemberNameError(Exception):
-    pass
+    def __str__(self):
+        return self.value

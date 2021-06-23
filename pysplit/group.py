@@ -20,7 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from .utils import BaseClass, DuplicateMemberError, NoMemberError, NoValidMemberNameError, now
+from .utils import BaseClass, DuplicateMemberError, MissingExchangeRateError, NoMemberError, NoValidMemberNameError
+from .utils import Currency, now
 from .member import Member
 from .purchase import Purchase
 from .transfer import Transfer
@@ -38,7 +39,7 @@ class Group(BaseClass):
             print(self.description)
 
         print(mainrule)
-        print('Turnover: {:}'.format(self.turnover))
+        print('Turnover: {:.2f}{:}'.format(self.turnover, self.currency))
 
         print(rule)
         print('Members:')
@@ -62,10 +63,12 @@ class Group(BaseClass):
 
         print(mainrule)
 
-    def __init__(self, name, description='', stamp=now()):
+    def __init__(self, name, description='', currency=Currency.Euro, exchange_rates={}, stamp=now()):
         super().__init__(stamp=stamp)
         self.name = name
         self.description = description
+        self.currency = currency
+        self.exchange_rates = exchange_rates
 
         self.members = {}
         self.purchases = []
@@ -81,9 +84,11 @@ class Group(BaseClass):
         return {
             'name': self.name,
             'description': self.description,
+            'currency': self.currency.name,
             'members': [m.to_dict() for m in self.members.values()],
             'purchases': [p.to_dict() for p in self.purchases],
             'transfers': [t.to_dict() for t in self.transfers],
+            'exchange_rates': {k.name: {kk.name: vv for kk, vv in v.items()} for k, v in self.exchange_rates.items()}
         }
 
     def add_member(self, name, stamp=now()):
@@ -96,17 +101,17 @@ class Group(BaseClass):
         self.members[name] = Member(self, name, stamp=stamp)
 
     def add_purchase(self, purchaser, recipients, amount, date=now(),
-                     title='untitled', description='', stamp=now()):
+                     title='untitled', description='', currency=None, stamp=now()):
         tmp = Purchase(self, purchaser, recipients, amount, date=date,
-                       title=title, description=description, stamp=stamp)
+                       title=title, description=description, currency=currency, stamp=stamp)
 
         self.purchases.append(tmp)
         return tmp
 
     def add_transfer(self, purchaser, recipients, amount, date=now(),
-                     title='untitled', description='', stamp=now()):
+                     title='untitled', description='', currency=None, stamp=now()):
         tmp = Transfer(self, purchaser, recipients, amount, date=date,
-                       title=title, description=description, stamp=stamp)
+                       title=title, description=description, currency=currency, stamp=stamp)
 
         self.transfers.append(tmp)
         return tmp
@@ -131,10 +136,21 @@ class Group(BaseClass):
                     balance_add[receiver.name] -= balance
 
                     balances.append(
-                        Balance(self, sender.name, receiver.name, balance)
+                        Balance(self, sender.name, receiver.name,
+                                balance, currency=self.currency)
                     )
 
         return balances
+
+    def exchange(self, amount, from_c, to_c):
+        if from_c == to_c:
+            return amount
+        elif from_c in self.exchange_rates:
+            return amount * self.exchange_rates[from_c][to_c]
+        elif to_c in self.exchange_rates:
+            return amount / self.exchange_rates[to_c][from_c]
+        else:
+            raise(MissingExchangeRateError(from_c, to_c))
 
     def get_member(self, name):
         try:
@@ -146,7 +162,7 @@ class Group(BaseClass):
         with open(path, 'w') as fp:
             json.dump(self.to_dict(), fp, indent=indent)
 
-    @property
+    @ property
     def turnover(self):
         return sum(x.amount for x in self.purchases)
 
@@ -155,18 +171,25 @@ def load_group(path):
     with open(path, 'r') as fp:
         data = json.load(fp)
 
+    exchange_rates = {Currency[k]: {Currency[kk]: vv for kk, vv in v.items()}
+                      for k, v in data['exchange_rates'].items()}
+
     group = Group(
-        data['name'], description=data['description'], stamp=data['stamp'])
+        data['name'], description=data['description'], currency=Currency[data['currency']],
+        exchange_rates=exchange_rates, stamp=data['stamp']
+    )
 
     for member in data['members']:
         group.add_member(member['name'], stamp=member['stamp'])
 
     for purchase in data['purchases']:
         group.add_purchase(purchase['purchaser'], purchase['recipients'], purchase['amount'], date=purchase['date'],
-                           title=purchase['title'], description=purchase['description'], stamp=purchase['stamp'])
+                           title=purchase['title'], description=purchase['description'],
+                           currency=Currency[purchase['currency']], stamp=purchase['stamp'])
 
     for transfer in data['transfers']:
         group.add_transfer(transfer['purchaser'], transfer['recipients'], transfer['amount'], date=transfer['date'],
-                           title=transfer['title'], description=transfer['description'], stamp=transfer['stamp'])
+                           title=transfer['title'], description=transfer['description'],
+                           currency=Currency[transfer['currency']], stamp=transfer['stamp'])
 
     return group

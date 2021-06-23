@@ -19,18 +19,19 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import at_least_list, BaseClass, encode_datetime, datetime_to_string, decode_datetime, now
+from .utils import at_least_list, BaseClass, encode_datetime, datetime_to_string, decode_datetime, now, Currency
 from .member import Member
 
 
 class Purchase(BaseClass):
     def __init__(self, group, purchaser, recipients, amount, date=now(),
-                 title='untitled', description='', stamp=now()):
+                 title='untitled', description='', currency=None, stamp=now()):
         super().__init__(stamp=stamp)
         self.group = group
         self.purchaser = purchaser
         self.recipients = recipients
         self.amount = amount
+        self.currency = self.group.currency if currency is None else currency
         self.date = date
         self.title = title
         self.description = description
@@ -44,8 +45,8 @@ class Purchase(BaseClass):
         tmp = '{:}'.format(self.title)
         if self.description:
             tmp += ' ({:})'.format(self.description)
-        tmp += ' {:}: {:} -> {:}'.format(self.purchaser.name,
-                                         self.amount, ', '.join(self.recipients.keys()))
+        tmp += ' {:}: {:.2f}{:} -> {:}'.format(self.purchaser.name,
+                                            self._amount, self.currency, ', '.join(self.recipients.keys()))
         return tmp
 
     def _link(self):
@@ -62,7 +63,8 @@ class Purchase(BaseClass):
         return {
             'purchaser': self.purchaser.name,
             'recipients': [x for x in self.recipients],
-            'amount': self.amount,
+            'amount': self._amount,
+            'currency': self.currency.name,
             'date': self.date,
             'title': self.title,
             'description': self.description
@@ -70,7 +72,7 @@ class Purchase(BaseClass):
 
     @property
     def amount(self):
-        return self._amount
+        return self.group.exchange(self._amount, self.currency, self.group.currency)
 
     @amount.setter
     def amount(self, x):
@@ -84,9 +86,6 @@ class Purchase(BaseClass):
     @date.setter
     def date(self, x):
         self._date = encode_datetime(x)
-
-    def get_recipient_amounts(self):
-        return {key: self.get_member_amount(key) for key in self.recipients}
 
     def get_member_amount(self, name):
         if name not in self.recipients:

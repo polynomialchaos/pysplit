@@ -33,7 +33,7 @@ class Member(BaseClass):
         self.receives = []
 
     def __str__(self):
-        return '{:} ({:})'.format(self.name, self.balance)
+        return '{:} ({:.2f}{:})'.format(self.name, self.balance, self.group.currency)
 
     def _serialize(self):
         return {
