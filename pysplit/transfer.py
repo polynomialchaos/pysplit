@@ -19,11 +19,16 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import now
 from .purchase import Purchase
 
+
 class Transfer(Purchase):
-    def _linkMembers(self):
-        self.purchaser.addTransfer(self)
+    def _link(self):
+        self.purchaser.add_transfer(self)
         for recipient in self.recipients:
-            recipient.addReceive(self)
+            self.recipients[recipient].add_receive(self)
+
+    def _remove_link(self):
+        self.purchaser.remove_transfer(self)
+        for recipient in self.recipients:
+            self.recipients[recipient].remove_receive(self)

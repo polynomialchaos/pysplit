@@ -19,56 +19,98 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import now
+from .utils import at_least_list, BaseClass, encode_datetime, datetime_to_string, decode_datetime, now
+from .member import Member
 
 
-class Purchase():
-    def __init__(self, purchaser, recipients, amount, name='', description='', stamp=now()):
+class Purchase(BaseClass):
+    def __init__(self, group, purchaser, recipients, amount, date=now(),
+                 title='untitled', description='', stamp=now()):
+        super().__init__(stamp=stamp)
+        self.group = group
         self.purchaser = purchaser
         self.recipients = recipients
         self.amount = amount
-        self.name = name
+        self.date = date
+        self.title = title
         self.description = description
-        self.stamp = stamp
 
-        self._linkMembers()
+        self._link()
+
+    def __del__(self):
+        self._remove_link()
+
+    def __str__(self):
+        tmp = '{:}'.format(self.title)
+        if self.description:
+            tmp += ' ({:})'.format(self.description)
+        tmp += ' {:}: {:} -> {:}'.format(self.purchaser.name,
+                                         self.amount, ', '.join(self.recipients.keys()))
+        return tmp
+
+    def _link(self):
+        self.purchaser.add_purchase(self)
+        for recipient in self.recipients:
+            self.recipients[recipient].add_receive(self)
+
+    def _remove_link(self):
+        self.purchaser.remove_purchase(self)
+        for recipient in self.recipients:
+            self.recipients[recipient].remove_receive(self)
+
+    def _serialize(self):
+        return {
+            'purchaser': self.purchaser.name,
+            'recipients': [x for x in self.recipients],
+            'amount': self.amount,
+            'date': self.date,
+            'title': self.title,
+            'description': self.description
+        }
 
     @property
-    def amount_pp(self):
-        return self.amount / len(self.recipients)
+    def amount(self):
+        return self._amount
+
+    @amount.setter
+    def amount(self, x):
+        self._amount = float(x)
+
+    @property
+    def date(self):
+        tmp = decode_datetime(self._date)
+        return datetime_to_string(tmp)
+
+    @date.setter
+    def date(self, x):
+        self._date = encode_datetime(x)
+
+    def get_recipient_amounts(self):
+        return {key: self.get_member_amount(key) for key in self.recipients}
+
+    def get_member_amount(self, name):
+        if name not in self.recipients:
+            return 0.0
+
+        return self.amount / self.number_of_recipients
+
+    @property
+    def number_of_recipients(self):
+        return len(self.recipients)
+
+    @property
+    def purchaser(self):
+        return self._purchaser
+
+    @purchaser.setter
+    def purchaser(self, x):
+        self._purchaser = self.group.get_member(x)
 
     @property
     def recipients(self):
         return self._recipients
 
     @recipients.setter
-    def recipients(self, recipients):
-        self._recipients = recipients if isinstance(
-            recipients, list) else [recipients]
-
-    def _serialize(self):
-        keys = ['amount', 'name', 'description', 'stamp']
-        tmp = {key: getattr(self, key) for key in keys}
-        tmp.update({'purchaser': self.purchaser.name})
-        tmp.update({'recipients': [x.name for x in self.recipients]})
-        return tmp
-
-    def _linkMembers(self):
-        self.purchaser.addPurchase(self)
-        for recipient in self.recipients:
-            recipient.addReceive(self)
-
-    def _remove(self):
-        self.purchaser._remove(self)
-        for recipient in self.recipients:
-            recipient._remove(self)
-
-    def __str__(self):
-        str_info = '{:} - '.format(self.name) if self.name else ''
-        str_info += '{:} - '.format(self.description) if self.description else ''
-        str_info += '{:}: {:} -> {:}'.format(
-            self.purchaser.name, self.amount, ', '.join([x.name for x in self.recipients]))
-        return str_info
-
-    def __repr__(self):
-        return '<{:} ({:}) - {:}>'.format(self.__class__.__name__, self.stamp, self)
+    def recipients(self, x):
+        x = at_least_list(x)
+        self._recipients = {xx: self.group.get_member(xx) for xx in x}

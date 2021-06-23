@@ -1,121 +1,53 @@
 {
-    "name": "Test",
-    "description": "",
-    "stamp": [
-        "26.02.2019",
-        "21:37:00"
-    ],
+    "name": "pysplit",
+    "description": "A simple python package for money pool split development.",
     "members": [
         {
-            "name": "Sara",
-            "stamp": [
-                "26.02.2019",
-                "21:38:56"
-            ]
+            "name": "member_1",
+            "stamp": "23.06.2021 07:53:55"
         },
         {
-            "name": "Florian",
-            "stamp": [
-                "26.02.2019",
-                "21:37:12"
-            ]
-        },
-        {
-            "name": "Thomas",
-            "stamp": [
-                "26.02.2019",
-                "21:39:02"
-            ]
-        },
-        {
-            "name": "Philipp",
-            "stamp": [
-                "26.02.2019",
-                "21:39:02"
-            ]
+            "name": "member_2",
+            "stamp": "23.06.2021 07:53:55"
         }
     ],
     "purchases": [
         {
-            "amount": 120.0,
-            "name": "t",
-            "description": "dfvdvdv",
-            "stamp": [
-                "26.02.2019",
-                "21:53:57"
-            ],
-            "purchaser": "Philipp",
+            "purchaser": "member_1",
             "recipients": [
-                "Florian"
-            ]
-        },
-        {
+                "member_1",
+                "member_2"
+            ],
             "amount": 100.0,
-            "name": "t",
-            "description": "dfvdvdv",
-            "stamp": [
-                "26.02.2019",
-                "21:53:57"
-            ],
-            "purchaser": "Florian",
-            "recipients": [
-                "Philipp"
-            ]
+            "date": "23.06.2021 07:54:09",
+            "title": "purchase_1",
+            "description": "",
+            "stamp": "23.06.2021 07:54:12"
         },
         {
-            "amount": 23.33,
-            "name": "t",
-            "description": "dfvdvdv",
-            "stamp": [
-                "26.02.2019",
-                "21:53:57"
-            ],
-            "purchaser": "Sara",
+            "purchaser": "member_1",
             "recipients": [
-                "Philipp",
-                "Sara"
-            ]
+                "member_2"
+            ],
+            "amount": 100.0,
+            "date": "23.06.2021 07:54:21",
+            "title": "purchase_2",
+            "description": "",
+            "stamp": "23.06.2021 07:54:22"
         },
         {
-            "amount": 1200.0,
-            "name": "sdvsdddd",
-            "description": "sdvdvsdvdvsdv",
-            "stamp": [
-                "28.02.2019",
-                "07:16:36"
-            ],
-            "purchaser": "Philipp",
+            "purchaser": "member_1",
             "recipients": [
-                "Sara"
-            ]
+                "member_1",
+                "member_2"
+            ],
+            "amount": 200.0,
+            "date": "23.06.2021 07:57:19",
+            "title": "purchase_3",
+            "description": "",
+            "stamp": "23.06.2021 07:57:19"
         }
     ],
-    "transfers": [
-        {
-            "amount": 11.66,
-            "name": "Balance",
-            "description": "",
-            "stamp": [
-                "28.02.2019",
-                "07:13:59"
-            ],
-            "purchaser": "Florian",
-            "recipients": [
-                "Sara"
-            ]
-        },
-        {
-            "amount": 8.34,
-            "name": "Bal",
-            "description": "",
-            "stamp": [
-                "28.02.2019",
-                "07:16:06"
-            ],
-            "purchaser": "Florian",
-            "recipients": [
-                "Philipp"
-            ]
-        }
-    ]
+    "transfers": [],
+    "stamp": "23.06.2021 07:53:55"
 }

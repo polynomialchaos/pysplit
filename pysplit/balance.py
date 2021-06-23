@@ -19,7 +19,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import at_least_list
-from .stamp import encode_datetime, datetime_to_string, decode_datetime, now
-from .base import BaseClass
-from .error import DuplicateMemberError, NoMemberError, NoValidMemberNameError
+from .utils import now
+from .transfer import Transfer
+
+
+class Balance(Transfer):
+    def __init__(self, group, purchaser, recipient, amount, date=now(), stamp=now()):
+        super().__init__(group, purchaser, recipient, amount, date=date,
+                         title='balance', description='pending', stamp=stamp)
+
+    def add_transfer(self):
+        recipients = list(self.recipients.keys())
+        self.group.add_transfer(self.purchaser.name, recipients, self.amount, date=self.date,
+                                title='balance', description='')
+
+    def _link(self):
+        pass
+
+    def _remove_link(self):
+        pass

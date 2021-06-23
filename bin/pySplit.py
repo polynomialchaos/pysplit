@@ -20,13 +20,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import argparse
-from pysplit import Group, loadJson
+from pysplit import *
+from pysplit.utils import NoValidMemberNameError, now
 
 
 def main():
-   # define the argument parser
+    # group = Group('test', 'a sample tsest')
+    # group.add_member('Florian')
+    # group.add_member('Floria2')
+    # # print(group.get_member('Florian'))
+
+    # # print(group.members)
+
+    # sumi = 0
+    # for i in range(10):
+    #     p = group.add_purchase('Florian', ['Florian', 'Floria2'], i + 0.33)
+    #     sumi += i
+
+    # group()
+
+    # define the argument parser
     parser = argparse.ArgumentParser(
-        description='pySplit - Cash sharing library')
+        description='pysplit - A simple python package for money pool split development.')
     parser.add_argument('-m', '--member', dest='member', required=False,
                         action='store_true', help='Add a member to the group')
     parser.add_argument('-p', '--purchase', dest='purchase', required=False,
@@ -36,55 +51,72 @@ def main():
     parser.add_argument('path', nargs='?', help='The path to a group file')
     args = parser.parse_args()
 
+    print(args.path)
     # load or create a group
     if args.path:
-        group = loadJson(args.path)
+        group = load_group(args.path)
     else:
         inp_name = input(' >>> Group name: ')
         inp_description = input(' >>> Group description: ')
         group = Group(inp_name, description=inp_description)
 
     if args.member:
-        inp_name = input(' >>> Member name: ')
-        inp_names = inp_name.split(';')
-        for x in inp_names:
-            group.addMember(x)
+        while True:
+            try:
+                inp_name = input(' >>> Member name: ')
+                group.add_member(inp_name)
+            except NoValidMemberNameError:
+                break
 
     if args.purchase:
-        inp_name = input(' >>> Purchase name: ')
-        inp_description = input(' >>> Purchase description: ')
-        inp_amount = input(' >>> Purchase amount: ')
-        inp_purchaser = input(' >>> Purchase purchaser: ')
-        inp_recipients = input(' >>> Purchase recipients: ')
-        group.addPurchase(inp_purchaser, inp_recipients.split(
-            ';'), float(inp_amount), inp_name, inp_description)
+        while True:
+            inp_purchaser = input(' >>> Purchase purchaser: ')
+            inp_recipients = input(
+                ' >>> Purchase recipients (seperated by ;): ')
+            inp_amount = input(' >>> Purchase amount: ')
+            inp_date = input(' >>> Purchase date (opt): ')
+            if not inp_date:
+                inp_date = now()
+            inp_title = input(' >>> Purchase title (opt): ')
+            inp_description = input(' >>> Purchase description (opt): ')
+
+            group.add_purchase(inp_purchaser, inp_recipients.split(';'), inp_amount, date=inp_date,
+                               title=inp_title, description=inp_description, stamp=now())
+
+            inp_cont = input(' >>> Add another purchase [Y/n]: ')
+            if not inp_cont.lower() == 'y':
+                break
 
     if args.transfer:
-        inp_name = input(' >>> Transfer name: ')
-        inp_description = input(' >>> Transfer description: ')
-        inp_amount = input(' >>> Transfer amount: ')
-        inp_purchaser = input(' >>> Transfer purchaser: ')
-        inp_recipient = input(' >>> Transfer recipient: ')
-        group.addTransfer(inp_purchaser, inp_recipient, float(
-            inp_amount), inp_name, inp_description)
+        while True:
+            inp_purchaser = input(' >>> Transfer purchaser: ')
+            inp_recipient = input(
+                ' >>> Transfer recipient: ')
+            inp_amount = input(' >>> Transfer amount: ')
+            inp_date = input(' >>> Transfer date (opt): ')
+            if not inp_date:
+                inp_date = now()
+            inp_title = input(' >>> Transfer title (opt): ')
+            inp_description = input(' >>> Transfer description (opt): ')
 
-    # print the results
-    for p in group.purchases:
-        print(p)
+            group.add_purchase(inp_purchaser, inp_recipient, inp_amount, date=inp_date,
+                               title=inp_title, description=inp_description, stamp=now())
 
-    for t in group.transfers:
-        print(t)
+            inp_cont = input(' >>> Add another transfer [Y/n]: ')
+            if not inp_cont.lower() == 'y':
+                break
 
-    group.printBalance()
+    # print the group stats
+    group()
 
     # store the group in the existing file or create a new one
     if args.path:
-        group.save(args.path)
+        group.save(args.path, indent=4)
     else:
         inp_name = input(' >>> Group file name: ')
         if not inp_name:
             inp_name = '{:}.json'.format(group.name)
-        group.save(inp_name)
+        group.save(inp_name, indent=4)
 
 
 if __name__ == '__main__':

@@ -20,107 +20,153 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from .utils import now, ERROR
+from .utils import BaseClass, DuplicateMemberError, NoMemberError, NoValidMemberNameError, now
 from .member import Member
 from .purchase import Purchase
 from .transfer import Transfer
+from .balance import Balance
 
 
-class Group():
+class Group(BaseClass):
+    def __call__(self):
+        mainrule = ''.join('=' for _ in range(80))
+        rule = ''.join('-' for _ in range(80))
+
+        print(mainrule)
+        print('Group: {:}'.format(self.name))
+        if self.description:
+            print(self.description)
+
+        print(mainrule)
+        print('Turnover: {:}'.format(self.turnover))
+
+        print(rule)
+        print('Members:')
+        for m in self.members:
+            print(' * {:}'.format(self.members[m]))
+
+        print(rule)
+        print('Purchases:')
+        for p in self.purchases:
+            print(' * {:}'.format(p))
+
+        print(rule)
+        print('Transfers:')
+        for t in self.transfers:
+            print(' * {:}'.format(t))
+
+        print(rule)
+        print('Pending balances:')
+        for b in self.balances():
+            print(' * {:}'.format(b))
+
+        print(mainrule)
+
     def __init__(self, name, description='', stamp=now()):
+        super().__init__(stamp=stamp)
         self.name = name
         self.description = description
-        self.stamp = stamp
 
-        self.members = []
+        self.members = {}
         self.purchases = []
         self.transfers = []
 
-    def getMember(self, name):
-        for member in self.members:
-            if member.name == name:
-                return member
-
-        raise ERROR('Could not locate member with name "{:}"!'.format(name))
-
-    def addMember(self, name, stamp=now()):
-        if name in [x.name for x in self.members]:
-            raise ERROR('Provided duplicate member name "{:}"!'.format(name))
-
-        self.members.append(Member(name.strip(), stamp=stamp))
-
-    def addPurchase(self, purchaser, recipients, amount, name='', description='', stamp=now()):
-        self.purchases.append(
-            Purchase(self.getMember(purchaser.strip()), [self.getMember(x.strip()) for x in recipients], amount,
-                     name=name, description=description, stamp=stamp)
-        )
-
-    def addTransfer(self, purchaser, recipient, amount, name='', description='', stamp=now()):
-        self.transfers.append(
-            Transfer(self.getMember(purchaser.strip()), self.getMember(recipient.strip()), amount,
-                     name=name, description=description, stamp=stamp)
-        )
-
-    def save(self, path):
-        with open(path, 'w') as f:
-            json.dump(self._serialize(), f, indent=4)
-
-    def _reset(self):
-        for member in self.members:
-            member._reset()
-        self.balances = []
-
-    def printBalance(self):
-        tmpBalances = []
-        self.members = sorted(self.members, key=(lambda x: x.balance))
-
-        for member in self.members:
-            for receiver in reversed(self.members):
-                if receiver.balance > 0.0 and member.name != receiver.name:
-                    tmpBalances.append(
-                        Transfer(member, receiver, min(
-                            abs(member.balance), receiver.balance), name='BALANCE')
-                    )
-
-        for balance in tmpBalances:
-            print(balance)
-            balance._remove()
-
-    def _serialize(self):
-        keys = ['name', 'description', 'stamp']
-        tmp = {key: getattr(self, key) for key in keys}
-        tmp.update({'members': [x._serialize() for x in self.members]})
-        tmp.update({'purchases': [x._serialize() for x in self.purchases]})
-        tmp.update({'transfers': [x._serialize() for x in self.transfers]})
+    def __str__(self):
+        tmp = '{:}'.format(self.name)
+        if self.description:
+            tmp += '({:})'.format(self.description)
         return tmp
 
-    def __str__(self):
-        str_info = '{:} - '.format(self.name) if self.name else ''
-        str_info += '{:} - '.format(self.description) if self.description else ''
-        str_info += '{:} members - '.format(len(self.members))
-        str_info += '{:} purchases - '.format(len(self.purchases))
-        str_info += '{:} transfers'.format(len(self.transfers))
-        return str_info
+    def _serialize(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'members': [m.to_dict() for m in self.members.values()],
+            'purchases': [p.to_dict() for p in self.purchases],
+            'transfers': [t.to_dict() for t in self.transfers],
+        }
 
-    def __repr__(self):
-        return '<{:} ({:}) - {:}>'.format(self.__class__.__name__, self.stamp, self)
+    def add_member(self, name, stamp=now()):
+        if not name:
+            raise(NoValidMemberNameError('Empty member name provided!'))
+
+        if name in self.members:
+            raise(DuplicateMemberError(name, self.members.keys()))
+
+        self.members[name] = Member(self, name, stamp=stamp)
+
+    def add_purchase(self, purchaser, recipients, amount, date=now(),
+                     title='untitled', description='', stamp=now()):
+        tmp = Purchase(self, purchaser, recipients, amount, date=date,
+                       title=title, description=description, stamp=stamp)
+
+        self.purchases.append(tmp)
+        return tmp
+
+    def add_transfer(self, purchaser, recipients, amount, date=now(),
+                     title='untitled', description='', stamp=now()):
+        tmp = Transfer(self, purchaser, recipients, amount, date=date,
+                       title=title, description=description, stamp=stamp)
+
+        self.transfers.append(tmp)
+        return tmp
+
+    def balances(self):
+        balances = []
+
+        ranked = sorted(self.members.values(), key=(lambda x: x.balance))
+        balance_add = {x.name: 0 for x in ranked}
+
+        for sender in ranked:
+            for receiver in reversed(ranked):
+                if sender == receiver:
+                    continue
+                sender_balance = sender.balance + balance_add[sender.name]
+                receiver_balance = receiver.balance + \
+                    balance_add[receiver.name]
+
+                if receiver_balance > 0:
+                    balance = min(abs(sender_balance), receiver_balance)
+                    balance_add[sender.name] += balance
+                    balance_add[receiver.name] -= balance
+
+                    balances.append(
+                        Balance(self, sender.name, receiver.name, balance)
+                    )
+
+        return balances
+
+    def get_member(self, name):
+        try:
+            return self.members[name]
+        except KeyError:
+            raise(NoMemberError(name, self.members.keys()))
+
+    def save(self, path, indent=None):
+        with open(path, 'w') as fp:
+            json.dump(self.to_dict(), fp, indent=indent)
+
+    @property
+    def turnover(self):
+        return sum(x.amount for x in self.purchases)
 
 
-def loadJson(path):
-    with open(path, 'r') as f:
-        data = json.load(f)
+def load_group(path):
+    with open(path, 'r') as fp:
+        data = json.load(fp)
 
-    tmp = Group(data['name'], data['description'], data['stamp'])
+    group = Group(
+        data['name'], description=data['description'], stamp=data['stamp'])
 
     for member in data['members']:
-        tmp.addMember(member['name'], stamp=member['stamp'])
+        group.add_member(member['name'], stamp=member['stamp'])
 
     for purchase in data['purchases']:
-        tmp.addPurchase(purchase['purchaser'], purchase['recipients'], purchase['amount'],
-                        name=purchase['name'], description=purchase['description'], stamp=purchase['stamp'])
+        group.add_purchase(purchase['purchaser'], purchase['recipients'], purchase['amount'], date=purchase['date'],
+                           title=purchase['title'], description=purchase['description'], stamp=purchase['stamp'])
 
     for transfer in data['transfers']:
-        tmp.addTransfer(transfer['purchaser'], transfer['recipients'][0], transfer['amount'],
-                        name=transfer['name'], description=transfer['description'], stamp=transfer['stamp'])
+        group.add_transfer(transfer['purchaser'], transfer['recipients'], transfer['amount'], date=transfer['date'],
+                           title=transfer['title'], description=transfer['description'], stamp=transfer['stamp'])
 
-    return tmp
+    return group

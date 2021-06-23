@@ -18,13 +18,38 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.#
-from datetime import datetime
+# SOFTWARE.
+# import json
+# from .utils import now, BaseException
+# from .member import Member
+# from .purchase import Purchase
+# from .transfer import Transfer
+from .stamp import now, encode_datetime, datetime_to_string, decode_datetime
 
-fmt_date = '%d.%m.%Y'
-fmt_time = '%H:%M:%S'
 
+class BaseClass():
+    def __init__(self, stamp=now()):
+        self.stamp = stamp
 
-def now():
-    dtnow = datetime.now()
-    return [dtnow.strftime('{:}'.format(fmt_date)), dtnow.strftime('{:}'.format(fmt_time))]
+    def __repr__(self):
+        return '<{:} ({:}) - {:}>'.format(self.__class__.__name__, self.stamp, self)
+
+    def __str__(self):
+        return str(self.__dict__)
+
+    def _serialize(self):
+        raise(NotImplementedError(self.__class__.__name__))
+
+    def to_dict(self):
+        tmp = self._serialize()
+        tmp['stamp'] = self.stamp
+        return tmp
+
+    @property
+    def stamp(self):
+        tmp = decode_datetime(self._stamp)
+        return datetime_to_string(tmp)
+
+    @stamp.setter
+    def stamp(self, x):
+        self._stamp = encode_datetime(x)

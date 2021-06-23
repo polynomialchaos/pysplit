@@ -19,7 +19,5 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import at_least_list
-from .stamp import encode_datetime, datetime_to_string, decode_datetime, now
-from .base import BaseClass
-from .error import DuplicateMemberError, NoMemberError, NoValidMemberNameError
+def at_least_list(x):
+    return x if isinstance(x, (list, tuple)) else [x]

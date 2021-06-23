@@ -19,55 +19,49 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import now
+from .utils import BaseClass, now
 
 
-class Member():
-    def __init__(self, name, stamp=now()):
+class Member(BaseClass):
+    def __init__(self, group, name, stamp=now()):
+        super().__init__(stamp=stamp)
+        self.group = group
         self.name = name
-        self.stamp = stamp
 
-        self.purchases = []
-        self.transfers = []
-        self.receives = []
-
-    def addPurchase(self, purchase):
-        self.purchases.append(purchase)
-
-    def addTransfer(self, transfer):
-        self.transfers.append(transfer)
-
-    def addReceive(self, receive):
-        self.receives.append(receive)
-
-    def _remove(self, x):
-        if x in self.purchases:
-            self.purchases.remove(x)
-        if x in self.transfers:
-            self.transfers.remove(x)
-        if x in self.receives:
-            self.receives.remove(x)
-
-    @property
-    def balance(self):
-        return sum([x.amount for x in self.purchases + self.transfers]) - sum([x.amount_pp for x in self.receives])
-
-    def _serialize(self):
-        keys = ['name', 'stamp']
-        return {key: getattr(self, key) for key in keys}
-
-    def _reset(self):
         self.purchases = []
         self.transfers = []
         self.receives = []
 
     def __str__(self):
-        str_info = '{:} - '.format(self.name)
-        str_info += '{:} purchases - '.format(len(self.purchases))
-        str_info += '{:} transfers - '.format(len(self.transfers))
-        str_info += '{:} receives - '.format(len(self.purchases))
-        str_info += '{:} balance'.format(self.balance)
-        return str_info
+        return '{:} ({:})'.format(self.name, self.balance)
 
-    def __repr__(self):
-        return '<{:} ({:}) - {:}>'.format(self.__class__.__name__, self.stamp, self)
+    def _serialize(self):
+        return {
+            'name': self.name
+        }
+
+    def add_purchase(self, purchase):
+        self.purchases.append(purchase)
+
+    def add_transfer(self, transfer):
+        self.transfers.append(transfer)
+
+    def add_receive(self, receive):
+        self.receives.append(receive)
+
+    @property
+    def balance(self):
+        balance = sum([x.amount for x in self.purchases])
+        balance += sum([x.amount for x in self.transfers])
+        balance -= sum([x.get_member_amount(self.name)
+                       for x in self.receives])
+        return balance
+
+    def remove_purchase(self, purchase):
+        self.purchases.remove(purchase)
+
+    def remove_transfer(self, transfer):
+        self.transfers.remove(transfer)
+
+    def remove_receive(self, receive):
+        self.receives.remove(receive)
