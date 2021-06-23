@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from .utils import BaseClass, DuplicateMemberError, MissingExchangeRateError, NoMemberError, NoValidMemberNameError
+from .utils import BaseClass, DuplicateMemberError, MissingExchangeRateError, InvalidMemberError, InvalidMemberNameError
 from .utils import Currency, now
 from .member import Member
 from .purchase import Purchase
@@ -29,6 +29,8 @@ from .balance import Balance
 
 
 class Group(BaseClass):
+    """Group class derived from pysplit base class."""
+
     def __call__(self):
         mainrule = ''.join('=' for _ in range(80))
         rule = ''.join('-' for _ in range(80))
@@ -64,6 +66,15 @@ class Group(BaseClass):
         print(mainrule)
 
     def __init__(self, name, description='', currency=Currency.Euro, exchange_rates={}, stamp=now()):
+        """Group class initialization.
+
+        Keyword arguments:
+        name -- group name
+        description -- group description (default '')
+        currency -- group currency enum object (default Euro)
+        exchange_rates -- group exchange rates (default {})
+        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        """
         super().__init__(stamp=stamp)
         self.name = name
         self.description = description
@@ -81,6 +92,7 @@ class Group(BaseClass):
         return tmp
 
     def _serialize(self):
+        """Convert the object to a JSON conform dictionary and return it."""
         return {
             'name': self.name,
             'description': self.description,
@@ -92,8 +104,14 @@ class Group(BaseClass):
         }
 
     def add_member(self, name, stamp=now()):
+        """Add a member to the group.
+
+        Keyword arguments:
+        name -- member name
+        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        """
         if not name:
-            raise(NoValidMemberNameError('Empty member name provided!'))
+            raise(InvalidMemberNameError('Empty member name provided!'))
 
         if name in self.members:
             raise(DuplicateMemberError(name, self.members.keys()))
@@ -102,6 +120,19 @@ class Group(BaseClass):
 
     def add_purchase(self, purchaser, recipients, amount, date=now(),
                      title='untitled', description='', currency=None, stamp=now()):
+        """Add a purchase to the group.
+
+        Keyword arguments:
+        purchaser -- purchaser name
+        recipients -- recipient name or list of recipient names
+        amount -- purchase amount
+        date -- a datetime object, a serialized datetime object or a datetime string (default now())
+        title -- purchase title (default 'untitled')
+        description -- purchase description (default '')
+        currency -- purchase currency (default None = group currency)
+        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        """
+
         tmp = Purchase(self, purchaser, recipients, amount, date=date,
                        title=title, description=description, currency=currency, stamp=stamp)
 
@@ -110,6 +141,18 @@ class Group(BaseClass):
 
     def add_transfer(self, purchaser, recipients, amount, date=now(),
                      title='untitled', description='', currency=None, stamp=now()):
+        """Add a transfer to the group.
+
+        Keyword arguments:
+        purchaser -- purchaser name
+        recipients -- recipient name or list of recipient names
+        amount -- transfer amount
+        date -- a datetime object, a serialized datetime object or a datetime string (default now())
+        title -- transfer title (default 'untitled')
+        description -- transfer description (default '')
+        currency -- transfer currency (default None = group currency)
+        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        """
         tmp = Transfer(self, purchaser, recipients, amount, date=date,
                        title=title, description=description, currency=currency, stamp=stamp)
 
@@ -117,6 +160,7 @@ class Group(BaseClass):
         return tmp
 
     def balances(self):
+        """Generate the balance transfers and return a list of them."""
         balances = []
 
         ranked = sorted(self.members.values(), key=(lambda x: x.balance))
@@ -143,6 +187,13 @@ class Group(BaseClass):
         return balances
 
     def exchange(self, amount, from_c, to_c):
+        """Convert an amount in currency from_c to currency to_c.
+
+        Keyword arguments:
+        amount -- amount
+        from_c -- from currency object
+        to_c -- to currency object
+        """
         if from_c == to_c:
             return amount
         elif from_c in self.exchange_rates:
@@ -153,10 +204,15 @@ class Group(BaseClass):
             raise(MissingExchangeRateError(from_c, to_c))
 
     def get_member(self, name):
+        """Find and return a member object by name.
+
+        Keyword arguments:
+        name -- name string
+        """
         try:
             return self.members[name]
         except KeyError:
-            raise(NoMemberError(name, self.members.keys()))
+            raise(InvalidMemberError(name, self.members.keys()))
 
     def save(self, path, indent=None):
         with open(path, 'w') as fp:
@@ -168,6 +224,11 @@ class Group(BaseClass):
 
 
 def load_group(path):
+    """Load a group object from a specified JSON file and return dict object.
+
+    Keyword arguments:
+    path -- JSON file path
+    """
     with open(path, 'r') as fp:
         data = json.load(fp)
 

@@ -20,4 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 def at_least_list(x):
+    """Wrap if not already a list or tuple object and return a list.
+    Keyword arguments:
+    x -- a scalar value or a list
+    """
     return x if isinstance(x, (list, tuple)) else [x]

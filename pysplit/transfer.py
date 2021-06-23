@@ -23,12 +23,17 @@ from .purchase import Purchase
 
 
 class Transfer(Purchase):
+    """Transfer class derived from purchase class.
+    This derived class links in member transfers."""
+
     def _link(self):
+        """Link the transfer object in the group object."""
         self.purchaser.add_transfer(self)
         for recipient in self.recipients:
             self.recipients[recipient].add_receive(self)
 
     def _remove_link(self):
+        """Remove the transfer object from the group object."""
         self.purchaser.remove_transfer(self)
         for recipient in self.recipients:
             self.recipients[recipient].remove_receive(self)

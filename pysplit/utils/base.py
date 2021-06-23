@@ -24,11 +24,22 @@
 # from .member import Member
 # from .purchase import Purchase
 # from .transfer import Transfer
-from .stamp import now, encode_datetime, datetime_to_string, decode_datetime
+from .stamp import encode_datetime, datetime_to_string, decode_datetime, now
 
 
 class BaseClass():
+    """Base class for pysplit package.
+
+    Keyword arguments:
+    stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+    """
+
     def __init__(self, stamp=now()):
+        """Base class initialization.
+
+        Keyword arguments:
+        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        """
         self.stamp = stamp
 
     def __repr__(self):
@@ -38,9 +49,15 @@ class BaseClass():
         return str(self.__dict__)
 
     def _serialize(self):
+        """Convert the object to a JSON conform dictionary and return it.
+        Requires implementation in derived class.
+        """
         raise(NotImplementedError(self.__class__.__name__))
 
     def to_dict(self):
+        """Convert the object to a JSON conform dictionary.
+        This function calls the _serialize method and includes the base class stamp property.
+        """
         tmp = self._serialize()
         tmp['stamp'] = self.stamp
         return tmp

@@ -22,7 +22,9 @@
 from enum import Enum, unique
 
 
+@unique
 class Currency(Enum):
+    """Derived Enum class for Currency enumeration."""
     Euro = '€'
     USD = '$'
 

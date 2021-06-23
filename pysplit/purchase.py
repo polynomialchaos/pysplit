@@ -24,8 +24,24 @@ from .member import Member
 
 
 class Purchase(BaseClass):
+    """Purchase class derived from base class.
+    This derived class links in member purchases."""
+
     def __init__(self, group, purchaser, recipients, amount, date=now(),
                  title='untitled', description='', currency=None, stamp=now()):
+        """Purchase class initialization.
+
+        Keyword arguments:
+        group -- group object
+        purchaser -- purchaser name
+        recipients -- recipient name or list of recipient names
+        amount -- purchase amount
+        date -- a datetime object, a serialized datetime object or a datetime string (default now())
+        title -- purchase title (default 'untitled')
+        description -- purchase description (default '')
+        currency -- purchase currency (default None = group currency)
+        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        """
         super().__init__(stamp=stamp)
         self.group = group
         self.purchaser = purchaser
@@ -46,20 +62,23 @@ class Purchase(BaseClass):
         if self.description:
             tmp += ' ({:})'.format(self.description)
         tmp += ' {:}: {:.2f}{:} -> {:}'.format(self.purchaser.name,
-                                            self._amount, self.currency, ', '.join(self.recipients.keys()))
+                                               self._amount, self.currency, ', '.join(self.recipients.keys()))
         return tmp
 
     def _link(self):
+        """Link the purchase object from the group object."""
         self.purchaser.add_purchase(self)
         for recipient in self.recipients:
             self.recipients[recipient].add_receive(self)
 
     def _remove_link(self):
+        """Remove the purchase object from the group object."""
         self.purchaser.remove_purchase(self)
         for recipient in self.recipients:
             self.recipients[recipient].remove_receive(self)
 
     def _serialize(self):
+        """Convert the object to a JSON conform dictionary and return it."""
         return {
             'purchaser': self.purchaser.name,
             'recipients': [x for x in self.recipients],
@@ -88,6 +107,7 @@ class Purchase(BaseClass):
         self._date = encode_datetime(x)
 
     def get_member_amount(self, name):
+        """Calculate the member amount in group currency and return it."""
         if name not in self.recipients:
             return 0.0
 
@@ -95,6 +115,7 @@ class Purchase(BaseClass):
 
     @property
     def number_of_recipients(self):
+        """Return the number of recipients."""
         return len(self.recipients)
 
     @property

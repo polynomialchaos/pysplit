@@ -24,17 +24,34 @@ from .transfer import Transfer
 
 
 class Balance(Transfer):
+    """Balance class derived from transfer class.
+    This derived class does not link balance in members."""
+
     def __init__(self, group, purchaser, recipient, amount, date=now(), currency=None, stamp=now()):
+        """Balance class initialization.
+
+        Keyword arguments:
+        group -- group object
+        purchaser -- purchaser name
+        recipient -- recipient name
+        amount -- balance amount
+        date -- a datetime object, a serialized datetime object or a datetime string (default now())
+        currency -- balance currency (default None = group currency)
+        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        """
         super().__init__(group, purchaser, recipient, amount, date=date,
                          title='balance', description='pending', currency=currency, stamp=stamp)
 
     def add_transfer(self):
+        """Convert the balance object to a transfer object."""
         recipients = list(self.recipients.keys())
         self.group.add_transfer(self.purchaser.name, recipients, self.amount, date=self.date,
-                                title='balance', description='', currency=self.currency)
+                                title=self.title, description='', currency=self.currency)
 
     def _link(self):
+        """Link the balance object in the group object."""
         pass
 
     def _remove_link(self):
+        """Remove the balance object from the group object."""
         pass

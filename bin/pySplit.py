@@ -21,13 +21,13 @@
 # SOFTWARE.
 import argparse
 from pysplit import *
-from pysplit.utils import NoValidMemberNameError, now
+from pysplit.utils import InvalidMemberNameError, now
 
 
 def main():
     # define the argument parser
     parser = argparse.ArgumentParser(
-        description='pysplit - A simple python package for money pool split development.')
+        description='pySplit - A simple python package for money pool split development.')
     parser.add_argument('-m', '--member', dest='member', required=False,
                         action='store_true', help='Add a member to the group')
     parser.add_argument('-p', '--purchase', dest='purchase', required=False,
@@ -51,7 +51,7 @@ def main():
             try:
                 inp_name = input(' >>> Member name: ')
                 group.add_member(inp_name)
-            except NoValidMemberNameError:
+            except InvalidMemberNameError:
                 break
 
     if args.purchase:

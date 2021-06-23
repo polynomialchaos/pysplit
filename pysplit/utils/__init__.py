@@ -22,5 +22,5 @@
 from .utils import at_least_list
 from .stamp import encode_datetime, datetime_to_string, decode_datetime, now
 from .base import BaseClass
-from .error import DuplicateMemberError, MissingExchangeRateError, NoMemberError, NoValidMemberNameError
+from .error import DuplicateMemberError, InvalidMemberError, InvalidMemberNameError, MissingExchangeRateError
 from .currency import Currency

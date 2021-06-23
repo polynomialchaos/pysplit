@@ -20,16 +20,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 class DuplicateMemberError(Exception):
+    """Exception class for a duplicate member error."""
+    pass
+
+
+class InvalidMemberError(Exception):
+    """Exception class for a invalid member error."""
+    pass
+
+
+class InvalidMemberNameError(Exception):
+    """Exception class for a invalid member error."""
     pass
 
 
 class MissingExchangeRateError(Exception):
-    pass
-
-
-class NoMemberError(Exception):
-    pass
-
-
-class NoValidMemberNameError(Exception):
+    """Exception class for a missing exchange rate error."""
     pass
