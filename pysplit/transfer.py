@@ -27,13 +27,13 @@ class Transfer(Purchase):
     This derived class links in member transfers."""
 
     def _link(self):
-        """Link the transfer object in the group object."""
+        """Link the transfer object in the members objects."""
         self.purchaser.add_transfer(self)
         for recipient in self.recipients:
             self.recipients[recipient].add_receive(self)
 
     def _remove_link(self):
-        """Remove the transfer object from the group object."""
+        """Remove the transfer object from the members objects.."""
         self.purchaser.remove_transfer(self)
         for recipient in self.recipients:
             self.recipients[recipient].remove_receive(self)

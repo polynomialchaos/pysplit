@@ -49,9 +49,9 @@ class Balance(Transfer):
                                 title=self.title, description='', currency=self.currency)
 
     def _link(self):
-        """Link the balance object in the group object."""
+        """Link the balance object in the members objects."""
         pass
 
     def _remove_link(self):
-        """Remove the balance object from the group object."""
+        """Remove the balance object from the members objects.."""
         pass

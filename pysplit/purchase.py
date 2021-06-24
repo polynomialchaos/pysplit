@@ -66,13 +66,13 @@ class Purchase(BaseClass):
         return tmp
 
     def _link(self):
-        """Link the purchase object from the group object."""
+        """Link the purchase object in the members objects."""
         self.purchaser.add_purchase(self)
         for recipient in self.recipients:
             self.recipients[recipient].add_receive(self)
 
     def _remove_link(self):
-        """Remove the purchase object from the group object."""
+        """Remove the purchase object from the members objects.."""
         self.purchaser.remove_purchase(self)
         for recipient in self.recipients:
             self.recipients[recipient].remove_receive(self)
