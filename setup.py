@@ -9,7 +9,7 @@ setup(
     packages=['pysplit'],
     entry_points={
         "console_scripts": [
-            'pySplit=bin.pySplit:main',
+            'pySplit=pysplit.bin.pySplit:main',
         ]
     }
 )
