@@ -21,7 +21,23 @@
 # SOFTWARE.
 import argparse
 from pysplit import *
-from pysplit.utils import InvalidMemberNameError, now
+from pysplit.utils import Currency, InvalidMemberError, mainrule, rule, now
+from pysplit.utils.stamp import datetime_to_string
+
+
+def user_input(description, default=None, options=None, func=str):
+    """Parse user input. Use default value, show options and parse output."""
+    def_str = '[{:}]'.format(default) if default else ''
+    des_str = ' '.join([description, def_str]).strip()
+
+    opt_str = '({:})'.format(', '.join(options)) if options else ''
+    des_str = ' '.join([des_str, opt_str]).strip()
+
+    inp_data = input(' * {:} < '.format(des_str)) or default
+    if inp_data is None:
+        raise(ValueError('Required input not provided!'))
+
+    return func(inp_data)
 
 
 def main():
@@ -37,72 +53,127 @@ def main():
     parser.add_argument('path', nargs='?', help='The path to a group file')
     args = parser.parse_args()
 
-    print(args.path)
     # load or create a group
     if args.path:
+        print(mainrule)
+        print('Load an existing group: {:}'.format(args.path))
         group = load_group(args.path)
     else:
-        inp_name = input(' >>> Group name: ')
-        inp_description = input(' >>> Group description: ')
-        group = Group(inp_name, description=inp_description)
+        print('* Create a new group:')
+        inp_title = user_input('Group name', default='Untitled')
+        inp_description = user_input('Group description', default='')
+        inp_currency = user_input('Group currency', default=Currency.Euro.name,
+                                  options=[x.name for x in Currency],
+                                  func=(lambda x: Currency[x]))
 
-    if args.member:
+        group = Group(inp_title, description=inp_description,
+                      currency=inp_currency)
+
+    if args.member or not group.members:
+        print(rule)
+        print('Add member(s)')
         while True:
-            try:
-                inp_name = input(' >>> Member name: ')
+
+            inp_name = user_input(
+                'Member name (Enter to continue)', default='')
+            if inp_name:
                 group.add_member(inp_name)
-            except InvalidMemberNameError:
+            else:
                 break
 
     if args.purchase:
+        if not group.members:
+            raise InvalidMemberError('No members have been defined!')
+
+        members = list(group.members.keys())
         while True:
-            inp_purchaser = input(' >>> Purchase purchaser: ')
-            inp_recipients = input(
-                ' >>> Purchase recipients (seperated by ;): ')
-            inp_amount = input(' >>> Purchase amount: ')
-            inp_date = input(' >>> Purchase date (opt): ')
-            if not inp_date:
-                inp_date = now()
-            inp_title = input(' >>> Purchase title (opt): ')
-            inp_description = input(' >>> Purchase description (opt): ')
+            print(rule)
+            print('Add purchase')
+            inp_purchaser = user_input('Purchaser', default=members[0],
+                                       options=members)
+            inp_recipients = user_input('Recipients (seperated by ;)',
+                                        default='; '.join(members),
+                                        options=members,
+                                        func=(lambda x: [
+                                            xx.strip()
+                                            for xx in x.split(';')
+                                        ]))
 
-            group.add_purchase(inp_purchaser, inp_recipients.split(';'), inp_amount, date=inp_date,
-                               title=inp_title, description=inp_description, stamp=now())
+            inp_amount = user_input('Amount', func=float)
+            inp_currency = user_input('Currency', default=Currency.Euro.name,
+                                      options=[x.name for x in Currency],
+                                      func=(lambda x: Currency[x]))
 
-            inp_cont = input(' >>> Add another purchase [Y/n]: ')
-            if not inp_cont.lower() == 'y':
+            inp_date = user_input('Date', default=datetime_to_string(now()))
+            inp_title = user_input('Title', default='Untitled')
+            inp_description = user_input('Description', default='')
+
+            group.add_purchase(inp_purchaser, inp_recipients,
+                               inp_amount, date=inp_date,
+                               title=inp_title, description=inp_description,
+                               currency=inp_currency)
+
+            inp_cont = user_input('Add another purchase',
+                                  default='n', options=['y', 'N'],
+                                  func=(lambda x: x.lower() == 'y'))
+            if not inp_cont:
                 break
 
     if args.transfer:
+        if not group.members:
+            raise InvalidMemberError('No members have been defined!')
+
+        members = list(group.members.keys())
         while True:
-            inp_purchaser = input(' >>> Transfer purchaser: ')
-            inp_recipient = input(
-                ' >>> Transfer recipient: ')
-            inp_amount = input(' >>> Transfer amount: ')
-            inp_date = input(' >>> Transfer date (opt): ')
-            if not inp_date:
-                inp_date = now()
-            inp_title = input(' >>> Transfer title (opt): ')
-            inp_description = input(' >>> Transfer description (opt): ')
+            print(rule)
+            print('Add transfer')
 
-            group.add_purchase(inp_purchaser, inp_recipient, inp_amount, date=inp_date,
-                               title=inp_title, description=inp_description, stamp=now())
+            inp_purchaser = user_input('Purchaser', default=members[0],
+                                       options=members)
+            inp_recipients = user_input('Recipient', default=members[0],
+                                        options=members)
 
-            inp_cont = input(' >>> Add another transfer [Y/n]: ')
-            if not inp_cont.lower() == 'y':
+            inp_amount = user_input('Amount', func=float)
+            inp_currency = user_input('Currency', default=Currency.Euro.name,
+                                      options=[x.name for x in Currency],
+                                      func=(lambda x: Currency[x]))
+
+            inp_date = user_input('Date', default=datetime_to_string(now()))
+            inp_title = user_input('Title', default='Untitled')
+            inp_description = user_input('Description', default='')
+
+            group.add_transfer(inp_purchaser, inp_recipients,
+                               inp_amount, date=inp_date,
+                               title=inp_title, description=inp_description,
+                               currency=inp_currency)
+
+            inp_cont = user_input('Add another transfer',
+                                  default='n', options=['y', 'N'],
+                                  func=(lambda x: x.lower() == 'y'))
+            if not inp_cont:
                 break
 
+    print(mainrule)
+
     # print the group stats
+    print()
     group()
 
     # store the group in the existing file or create a new one
+    print()
+    print(mainrule)
+
     if args.path:
-        group.save(args.path, indent=4)
+        file_path = args.path
     else:
-        inp_name = input(' >>> Group file name: ')
-        if not inp_name:
-            inp_name = '{:}.json'.format(group.name)
-        group.save(inp_name, indent=4)
+        tmp = group.name.lower().replace(' ', '_')
+        file_path = user_input('File name',
+                               default='{:}.json'.format(tmp))
+
+    print('Save file to: {:}'.format(args.path))
+    group.save(file_path, indent=4)
+
+    print(mainrule)
 
 
 if __name__ == '__main__':

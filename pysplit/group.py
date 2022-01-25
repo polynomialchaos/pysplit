@@ -20,7 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from .utils import BaseClass, DuplicateMemberError, MissingExchangeRateError, InvalidMemberError, InvalidMemberNameError
+from .utils import BaseClass, DuplicateMemberError, MissingExchangeRateError
+from .utils import InvalidMemberError, InvalidMemberNameError
+from .utils import mainrule, rule
 from .utils import Currency, now
 from .member import Member
 from .purchase import Purchase
@@ -32,11 +34,8 @@ class Group(BaseClass):
     """Group class derived from pysplit base class."""
 
     def __call__(self):
-        mainrule = ''.join('=' for _ in range(80))
-        rule = ''.join('-' for _ in range(80))
-
         print(mainrule)
-        print('Group: {:}'.format(self.name))
+        print('Summary for group: {:}'.format(self.name))
         if self.description:
             print(self.description)
 

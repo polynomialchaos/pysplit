@@ -19,6 +19,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+mainrule = ''.join('=' for _ in range(80))
+rule = ''.join('-' for _ in range(80))
+
+
 def at_least_list(x):
     """Wrap if not already a list or tuple object and return a list.
     Keyword arguments:
