@@ -170,7 +170,7 @@ def main():
         file_path = user_input('File name',
                                default='{:}.json'.format(tmp))
 
-    print('Save file to: {:}'.format(args.path))
+    print('Save file to: {:}'.format(file_path))
     group.save(file_path, indent=4)
 
     print(mainrule)
