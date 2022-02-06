@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
+import logging
 from .utils import BaseClass, DuplicateMemberError, MissingExchangeRateError
 from .utils import InvalidMemberError, InvalidMemberNameError
 from .utils import mainrule, rule
@@ -214,6 +215,7 @@ class Group(BaseClass):
             raise(InvalidMemberError(name, self.members.keys()))
 
     def save(self, path, indent=None):
+        logging.debug('Store a group object to "{:}"'.format(path))
         with open(path, 'w') as fp:
             json.dump(self.to_dict(), fp, indent=indent)
 
@@ -228,6 +230,8 @@ def load_group(path):
     Keyword arguments:
     path -- JSON file path
     """
+    logging.debug('Load a group object from "{:}"'.format(path))
+
     with open(path, 'r') as fp:
         data = json.load(fp)
 
