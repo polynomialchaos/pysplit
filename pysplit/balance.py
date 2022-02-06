@@ -45,8 +45,9 @@ class Balance(Transfer):
     def add_transfer(self):
         """Convert the balance object to a transfer object."""
         recipients = list(self.recipients.keys())
-        self.group.add_transfer(self.purchaser.name, recipients, self.amount, date=self.date,
-                                title=self.title, description='', currency=self.currency)
+        self.group.add_transfer(self.title, self.purchaser.name, recipients,
+                                self.amount, date=self.date,
+                                description='', currency=self.currency)
 
     def _link(self):
         """Link the balance object in the members objects."""

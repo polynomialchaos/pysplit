@@ -117,8 +117,8 @@ class Group(BaseClass):
 
         self.members[name] = Member(self, name, stamp=stamp)
 
-    def add_purchase(self, purchaser, recipients, amount, date=now(),
-                     title='untitled', description='', currency=None, stamp=now()):
+    def add_purchase(self, title, purchaser, recipients, amount, date=now(),
+                     description='', currency=None, stamp=now()):
         """Add a purchase to the group.
 
         Keyword arguments:
@@ -138,8 +138,8 @@ class Group(BaseClass):
         self.purchases.append(tmp)
         return tmp
 
-    def add_transfer(self, purchaser, recipients, amount, date=now(),
-                     title='untitled', description='', currency=None, stamp=now()):
+    def add_transfer(self, title, purchaser, recipients, amount, date=now(),
+                     description='', currency=None, stamp=now()):
         """Add a transfer to the group.
 
         Keyword arguments:
@@ -243,13 +243,15 @@ def load_group(path):
         group.add_member(member['name'], stamp=member['stamp'])
 
     for purchase in data['purchases']:
-        group.add_purchase(purchase['purchaser'], purchase['recipients'], purchase['amount'], date=purchase['date'],
-                           title=purchase['title'], description=purchase['description'],
+        group.add_purchase(purchase['title'], purchase['purchaser'], purchase['recipients'],
+                           purchase['amount'], date=purchase['date'],
+                           description=purchase['description'],
                            currency=Currency[purchase['currency']], stamp=purchase['stamp'])
 
     for transfer in data['transfers']:
-        group.add_transfer(transfer['purchaser'], transfer['recipients'], transfer['amount'], date=transfer['date'],
-                           title=transfer['title'], description=transfer['description'],
+        group.add_transfer(transfer['title'], transfer['purchaser'], transfer['recipients'],
+                           transfer['amount'], date=transfer['date'],
+                           description=transfer['description'],
                            currency=Currency[transfer['currency']], stamp=transfer['stamp'])
 
     return group
