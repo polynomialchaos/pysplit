@@ -28,7 +28,7 @@ class Purchase(BaseClass):
     This derived class links in member purchases."""
 
     def __init__(self, group, purchaser, recipients, amount, date=now(),
-                 title='untitled', description='', currency=None, stamp=now()):
+                 title='untitled', currency=None, stamp=now()):
         """Purchase class initialization.
 
         Keyword arguments:
@@ -38,7 +38,6 @@ class Purchase(BaseClass):
         amount -- purchase amount
         date -- a datetime object, a serialized datetime object or a datetime string (default now())
         title -- purchase title (default 'untitled')
-        description -- purchase description (default '')
         currency -- purchase currency (default None = group currency)
         stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
         """
@@ -50,7 +49,6 @@ class Purchase(BaseClass):
         self.currency = self.group.currency if currency is None else currency
         self.date = date
         self.title = title
-        self.description = description
 
         self._link()
 
@@ -59,10 +57,9 @@ class Purchase(BaseClass):
 
     def __str__(self):
         tmp = '{:}'.format(self.title)
-        if self.description:
-            tmp += ' ({:})'.format(self.description)
         tmp += ' {:}: {:.2f}{:} -> {:}'.format(self.purchaser.name,
-                                               self._amount, self.currency, ', '.join(self.recipients.keys()))
+                                               self._amount, self.currency,
+                                               ', '.join(self.recipients.keys()))
         return tmp
 
     def _link(self):
@@ -85,8 +82,7 @@ class Purchase(BaseClass):
             'amount': self._amount,
             'currency': self.currency.name,
             'date': self.date,
-            'title': self.title,
-            'description': self.description
+            'title': self.title
         }
 
     @property

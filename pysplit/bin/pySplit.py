@@ -67,7 +67,8 @@ def main():
     logger.addHandler(stdout_handler)
 
     if args.debug:
-        file_handler = logging.FileHandler('{:}.log'.format('output'), mode='w')
+        file_handler = logging.FileHandler(
+            '{:}.log'.format('output'), mode='w')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
@@ -103,7 +104,6 @@ def main():
         members = list(group.members.keys())
         while True:
             inp_title = user_input('Purchase title', default='Untitled')
-            inp_description = user_input('Purchase description', default='')
 
             inp_purchaser = user_input('Purchaser', default=members[0],
                                        options=members)
@@ -126,7 +126,6 @@ def main():
 
             group.add_purchase(inp_title, inp_purchaser, inp_recipients,
                                inp_amount, date=inp_date,
-                               description=inp_description,
                                currency=inp_currency)
 
             if not user_input('Add another purchase',
@@ -142,7 +141,6 @@ def main():
         members = list(group.members.keys())
         while True:
             inp_title = user_input('Transfer title', default='Untitled')
-            inp_description = user_input('Transfer description', default='')
 
             inp_purchaser = user_input('Purchaser', default=members[0],
                                        options=members)
@@ -161,7 +159,6 @@ def main():
 
             group.add_transfer(inp_title, inp_purchaser, inp_recipients,
                                inp_amount, date=inp_date,
-                               description=inp_description,
                                currency=inp_currency)
 
             if not user_input('Add another trajsfer',

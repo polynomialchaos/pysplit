@@ -27,7 +27,8 @@ class Balance(Transfer):
     """Balance class derived from transfer class.
     This derived class does not link balance in members."""
 
-    def __init__(self, group, purchaser, recipient, amount, date=now(), currency=None, stamp=now()):
+    def __init__(self, group, purchaser, recipient, amount,
+                 date=now(), currency=None, stamp=now()):
         """Balance class initialization.
 
         Keyword arguments:
@@ -40,14 +41,15 @@ class Balance(Transfer):
         stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
         """
         super().__init__(group, purchaser, recipient, amount, date=date,
-                         title='balance', description='pending', currency=currency, stamp=stamp)
+                         title='Pending balance',
+                         currency=currency, stamp=stamp)
 
     def add_transfer(self):
         """Convert the balance object to a transfer object."""
         recipients = list(self.recipients.keys())
         self.group.add_transfer(self.title, self.purchaser.name, recipients,
                                 self.amount, date=self.date,
-                                description='', currency=self.currency)
+                                currency=self.currency)
 
     def _link(self):
         """Link the balance object in the members objects."""

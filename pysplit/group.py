@@ -65,7 +65,8 @@ class Group(BaseClass):
 
         print(mainrule)
 
-    def __init__(self, name, description='', currency=Currency.Euro, exchange_rates={}, stamp=now()):
+    def __init__(self, name, description='', currency=Currency.Euro,
+                 exchange_rates={}, stamp=now()):
         """Group class initialization.
 
         Keyword arguments:
@@ -118,8 +119,8 @@ class Group(BaseClass):
 
         self.members[name] = Member(self, name, stamp=stamp)
 
-    def add_purchase(self, title, purchaser, recipients, amount, date=now(),
-                     description='', currency=None, stamp=now()):
+    def add_purchase(self, title, purchaser, recipients, amount,
+                     date=now(), currency=None, stamp=now()):
         """Add a purchase to the group.
 
         Keyword arguments:
@@ -128,19 +129,18 @@ class Group(BaseClass):
         amount -- purchase amount
         date -- a datetime object, a serialized datetime object or a datetime string (default now())
         title -- purchase title (default 'untitled')
-        description -- purchase description (default '')
         currency -- purchase currency (default None = group currency)
         stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
         """
 
         tmp = Purchase(self, purchaser, recipients, amount, date=date,
-                       title=title, description=description, currency=currency, stamp=stamp)
+                       title=title, currency=currency, stamp=stamp)
 
         self.purchases.append(tmp)
         return tmp
 
-    def add_transfer(self, title, purchaser, recipients, amount, date=now(),
-                     description='', currency=None, stamp=now()):
+    def add_transfer(self, title, purchaser, recipients, amount,
+                     date=now(), currency=None, stamp=now()):
         """Add a transfer to the group.
 
         Keyword arguments:
@@ -149,12 +149,11 @@ class Group(BaseClass):
         amount -- transfer amount
         date -- a datetime object, a serialized datetime object or a datetime string (default now())
         title -- transfer title (default 'untitled')
-        description -- transfer description (default '')
         currency -- transfer currency (default None = group currency)
         stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
         """
         tmp = Transfer(self, purchaser, recipients, amount, date=date,
-                       title=title, description=description, currency=currency, stamp=stamp)
+                       title=title, currency=currency, stamp=stamp)
 
         self.transfers.append(tmp)
         return tmp
@@ -239,7 +238,8 @@ def load_group(path):
                       for k, v in data['exchange_rates'].items()}
 
     group = Group(
-        data['name'], description=data['description'], currency=Currency[data['currency']],
+        data['name'], description=data['description'],
+        currency=Currency[data['currency']],
         exchange_rates=exchange_rates, stamp=data['stamp']
     )
 
@@ -247,15 +247,17 @@ def load_group(path):
         group.add_member(member['name'], stamp=member['stamp'])
 
     for purchase in data['purchases']:
-        group.add_purchase(purchase['title'], purchase['purchaser'], purchase['recipients'],
+        group.add_purchase(purchase['title'],
+                           purchase['purchaser'], purchase['recipients'],
                            purchase['amount'], date=purchase['date'],
-                           description=purchase['description'],
-                           currency=Currency[purchase['currency']], stamp=purchase['stamp'])
+                           currency=Currency[purchase['currency']],
+                           stamp=purchase['stamp'])
 
     for transfer in data['transfers']:
-        group.add_transfer(transfer['title'], transfer['purchaser'], transfer['recipients'],
+        group.add_transfer(transfer['title'],
+                           transfer['purchaser'], transfer['recipients'],
                            transfer['amount'], date=transfer['date'],
-                           description=transfer['description'],
-                           currency=Currency[transfer['currency']], stamp=transfer['stamp'])
+                           currency=Currency[transfer['currency']],
+                           stamp=transfer['stamp'])
 
     return group
