@@ -24,7 +24,9 @@ from dateutil import tz
 
 # tzlocal = dt.timezone.utc
 tzlocal = tz.tzlocal()
-fmt_local = r'%d.%m.%Y %H:%M:%S'
+fmt_local_date = r'%d.%m.%Y'
+fmt_local_time = r'%H:%M:%S'
+fmt_local = '{:} {:}'.format(fmt_local_date, fmt_local_time)
 
 
 def encode_datetime(t, timezone=tzlocal, fmt=fmt_local):
@@ -45,7 +47,7 @@ def encode_datetime(t, timezone=tzlocal, fmt=fmt_local):
     return t.timestamp()
 
 
-def datetime_to_string(t, fmt=fmt_local):
+def datetime_to_string(t, fmt=fmt_local, fmt_date=fmt_local_date):
     """Parse a given datetime object with optional format string
     and return a string.
 
@@ -53,6 +55,9 @@ def datetime_to_string(t, fmt=fmt_local):
     t -- a datetime object
     fmt -- a format string (default fmt_local)
     """
+    if t.time() == dt.time(0, 0):
+        return t.strftime(fmt_date)
+
     return t.strftime(fmt)
 
 
@@ -76,7 +81,7 @@ def now(timezone=tzlocal):
     return dt.datetime.now(timezone)
 
 
-def string_to_datetime(s, fmt=fmt_local):
+def string_to_datetime(s, fmt=fmt_local, fmt_date=fmt_local_date):
     """Parse a string with optional format string
     and return a datetime object.
 
@@ -84,4 +89,7 @@ def string_to_datetime(s, fmt=fmt_local):
     s -- a string containing date and time
     fmt -- a format string (default fmt_local)
     """
-    return dt.datetime.strptime(s, fmt)
+    try:
+        return dt.datetime.strptime(s, fmt)
+    except ValueError:
+        return dt.datetime.strptime(s, fmt_date)

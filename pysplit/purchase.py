@@ -56,7 +56,7 @@ class Purchase(BaseClass):
         self._remove_link()
 
     def __str__(self):
-        tmp = '{:}'.format(self.title)
+        tmp = '{:} ({:})'.format(self.title, self.date)
         tmp += ' {:}: {:.2f}{:} -> {:}'.format(self.purchaser.name,
                                                self._amount, self.currency,
                                                ', '.join(self.recipients.keys()))
