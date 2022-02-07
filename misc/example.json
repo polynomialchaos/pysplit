@@ -23,7 +23,6 @@
             "currency": "Euro",
             "date": "23.06.2021 07:54:09",
             "title": "purchase_1",
-            "description": "",
             "stamp": "23.06.2021 07:54:12"
         },
         {
@@ -35,7 +34,6 @@
             "currency": "Euro",
             "date": "23.06.2021 07:54:21",
             "title": "purchase_2",
-            "description": "",
             "stamp": "23.06.2021 07:54:22"
         },
         {
@@ -48,7 +46,6 @@
             "currency": "USD",
             "date": "23.06.2021 07:57:19",
             "title": "purchase_3",
-            "description": "",
             "stamp": "23.06.2021 07:57:19"
         }
     ],

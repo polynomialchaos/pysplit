@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-import logging
+# import logging
 from .utils import BaseClass, DuplicateMemberError, MissingExchangeRateError
 from .utils import InvalidMemberError, InvalidMemberNameError
 from .utils import mainrule, rule
@@ -41,7 +41,17 @@ class Group(BaseClass):
             print(self.description)
 
         print(mainrule)
-        print('Turnover: {:.2f}{:}'.format(self.turnover, self.currency))
+        print(' * Turnover: {:.2f}{:}'.format(self.turnover, self.currency))
+
+        if self.exchange_rates:
+            print(rule)
+            print('Exchange rates:')
+            for c, c_r in self.exchange_rates.items():
+                for c2, c_r2 in c_r.items():
+                    if c == c2:
+                        continue
+
+                    print(' * 1{:} -> {:}{:}'.format(c, c_r2, c2))
 
         print(rule)
         print('Members:')
@@ -214,7 +224,7 @@ class Group(BaseClass):
             raise(InvalidMemberError(name, self.members.keys()))
 
     def save(self, path, indent=None):
-        logging.debug('Store a group object to "{:}"'.format(path))
+        # logging.debug('Store a group object to "{:}"'.format(path))
         with open(path, 'w') as fp:
             json.dump(self.to_dict(), fp, indent=indent)
 
@@ -229,7 +239,7 @@ def load_group(path):
     Keyword arguments:
     path -- JSON file path
     """
-    logging.debug('Load a group object from "{:}"'.format(path))
+    # logging.debug('Load a group object from "{:}"'.format(path))
 
     with open(path, 'r') as fp:
         data = json.load(fp)
