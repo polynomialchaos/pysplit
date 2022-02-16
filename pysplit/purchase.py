@@ -87,7 +87,7 @@ class Purchase(BaseClass):
 
     @property
     def amount(self):
-        return self.group.exchange(self._amount, self.currency, self.group.currency)
+        return self.group.exchange(self._amount, self.currency)
 
     @amount.setter
     def amount(self, x):

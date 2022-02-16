@@ -47,11 +47,7 @@ class Group(BaseClass):
             print(rule)
             print('Exchange rates:')
             for c, c_r in self.exchange_rates.items():
-                for c2, c_r2 in c_r.items():
-                    if c == c2:
-                        continue
-
-                    print(' * 1{:} -> {:}{:}'.format(c, c_r2, c2))
+                print(' * 1{:} -> {:}{:}'.format(self.currency, c_r, c))
 
         print(rule)
         print('Members:')
@@ -111,7 +107,8 @@ class Group(BaseClass):
             'members': [m.to_dict() for m in self.members.values()],
             'purchases': [p.to_dict() for p in self.purchases],
             'transfers': [t.to_dict() for t in self.transfers],
-            'exchange_rates': {k.name: {kk.name: vv for kk, vv in v.items()} for k, v in self.exchange_rates.items()}
+            'exchange_rates': {
+                k.name: v for k, v in self.exchange_rates.items()}
         }
 
     def add_member(self, name, stamp=now()):
@@ -195,22 +192,20 @@ class Group(BaseClass):
 
         return balances
 
-    def exchange(self, amount, from_c, to_c):
+    def exchange(self, amount, from_c):
         """Convert an amount in currency from_c to currency to_c.
 
         Keyword arguments:
         amount -- amount
         from_c -- from currency object
-        to_c -- to currency object
         """
-        if from_c == to_c:
+        if from_c == self.currency:
             return amount
-        elif from_c in self.exchange_rates:
-            return amount * self.exchange_rates[from_c][to_c]
-        elif to_c in self.exchange_rates:
-            return amount / self.exchange_rates[to_c][from_c]
         else:
-            raise(MissingExchangeRateError(from_c, to_c))
+            if from_c not in self.exchange_rates:
+                raise(MissingExchangeRateError(from_c))
+
+            return amount / self.exchange_rates[from_c]
 
     def get_member(self, name):
         """Find and return a member object by name.
@@ -244,8 +239,8 @@ def load_group(path):
     with open(path, 'r') as fp:
         data = json.load(fp)
 
-    exchange_rates = {Currency[k]: {Currency[kk]: vv for kk, vv in v.items()}
-                      for k, v in data['exchange_rates'].items()}
+    exchange_rates = {Currency[k]: v for k,
+                      v in data['exchange_rates'].items()}
 
     group = Group(
         data['name'], description=data['description'],
