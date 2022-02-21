@@ -1,6 +1,6 @@
 {
-    "name": "pysplit",
-    "description": "A simple python package for money pool split development.",
+    "name": "pySplit",
+    "description": "A Python package for money pool split development.",
     "currency": "Euro",
     "members": [
         {

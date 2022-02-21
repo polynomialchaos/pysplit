@@ -49,12 +49,12 @@ def main():
     # parser.add_argument('-d', '--debug', dest='debug', required=False,
     #                     action='store_true', help='Provide logging output')
     parser.add_argument('-m', '--member', dest='member', required=False,
-                        action='store_true', help='Add a member to the group')
+                        action='store_true', help='Add a member to the group.')
     parser.add_argument('-p', '--purchase', dest='purchase', required=False,
-                        action='store_true', help='Add a purchase to the group')
+                        action='store_true', help='Add a purchase to the group.')
     parser.add_argument('-t', '--transfer', dest='transfer', required=False,
-                        action='store_true', help='Add a transfer to the group')
-    parser.add_argument('path', nargs='?', help='The path to a group file')
+                        action='store_true', help='Add a transfer to the group.')
+    parser.add_argument('path', nargs='?', help='The path to a group file.')
     args = parser.parse_args()
 
     # # logging
