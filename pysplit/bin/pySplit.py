@@ -23,6 +23,7 @@ import argparse
 # import logging
 import sys
 from pysplit import *
+from pysplit.version import __version__
 from pysplit.utils import Currency, InvalidMemberError, now
 from pysplit.utils.stamp import datetime_to_string
 
@@ -49,11 +50,13 @@ def main():
     # parser.add_argument('-d', '--debug', dest='debug', required=False,
     #                     action='store_true', help='Provide logging output')
     parser.add_argument('-m', '--member', dest='member', required=False,
-                        action='store_true', help='Add a member to the group.')
+                        action='store_true', help='Add member(s) to the group.')
     parser.add_argument('-p', '--purchase', dest='purchase', required=False,
-                        action='store_true', help='Add a purchase to the group.')
+                        action='store_true', help='Add purchase(s) to the group.')
     parser.add_argument('-t', '--transfer', dest='transfer', required=False,
-                        action='store_true', help='Add a transfer to the group.')
+                        action='store_true', help='Add transfer(s) to the group.')
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s (version {:})'.format(__version__))
     parser.add_argument('path', nargs='?', help='The path to a group file.')
     args = parser.parse_args()
 
