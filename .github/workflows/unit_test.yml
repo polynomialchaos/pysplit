@@ -21,12 +21,12 @@ jobs:
         python-version: '3.x'
         architecture: 'x64'
     - name: Install with pip
-        run:
+        run:|
           python -VV
           python -m site
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install --upgrade pip pytest
           python -m pip install -e .
     - name: Test with pytest
-        run:
+        run:|
           python -m pytest -s
