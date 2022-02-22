@@ -19,7 +19,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import now
 from .transfer import Transfer
 
 
@@ -27,8 +26,7 @@ class Balance(Transfer):
     """Balance class derived from transfer class.
     This derived class does not link balance in members."""
 
-    def __init__(self, group, purchaser, recipient, amount,
-                 date=now(), currency=None, stamp=now()):
+    def __init__(self, group, purchaser, recipient, amount, currency, date):
         """Balance class initialization.
 
         Keyword arguments:
@@ -36,25 +34,21 @@ class Balance(Transfer):
         purchaser -- purchaser name
         recipient -- recipient name
         amount -- balance amount
-        date -- a datetime object, a serialized datetime object or a datetime string (default now())
-        currency -- balance currency (default None = group currency)
-        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        date -- a Stamp object
         """
-        super().__init__(group, purchaser, recipient, amount, date=date,
-                         title='Pending balance',
-                         currency=currency, stamp=stamp)
+        super().__init__(group, 'Pending balance',
+                         purchaser, recipient, amount, currency, date)
 
-    def add_transfer(self):
+    def to_transfer(self):
         """Convert the balance object to a transfer object."""
         recipients = list(self.recipients.keys())
         self.group.add_transfer(self.title, self.purchaser.name, recipients,
-                                self.amount, date=self.date,
-                                currency=self.currency)
+                                self.amount, currency=self.currency, date=self.date)
 
     def _link(self):
         """Link the balance object in the members objects."""
         pass
 
-    def _remove_link(self):
+    def _unlink(self):
         """Remove the balance object from the members objects.."""
         pass

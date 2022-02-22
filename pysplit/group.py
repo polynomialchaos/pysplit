@@ -20,21 +20,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-# import logging
-from .utils import BaseClass, DuplicateMemberError, MissingExchangeRateError
+from .utils import Base, DuplicateMemberError, MissingExchangeRateError, Stamp
 from .utils import InvalidMemberError, InvalidMemberNameError
-from .utils import mainrule, rule
-from .utils import Currency, now
+from .utils import Currency
 from .member import Member
 from .purchase import Purchase
 from .transfer import Transfer
 from .balance import Balance
 
 
-class Group(BaseClass):
+class Group(Base):
     """Group class derived from pysplit base class."""
 
     def __call__(self):
+        mainrule = ''.join('=' for _ in range(80))
+        rule = ''.join('-' for _ in range(80))
+
         print(mainrule)
         print('Summary for group: {:}'.format(self.name))
         if self.description:
@@ -51,17 +52,17 @@ class Group(BaseClass):
 
         print(rule)
         print('Members:')
-        for m in self.members:
-            print(' * {:}'.format(self.members[m]))
+        for m in self._members:
+            print(' * {:}'.format(self._members[m]))
 
         print(rule)
         print('Purchases:')
-        for p in self.purchases:
+        for p in self._purchases:
             print(' * {:}'.format(p))
 
         print(rule)
         print('Transfers:')
-        for t in self.transfers:
+        for t in self._transfers:
             print(' * {:}'.format(t))
 
         print(rule)
@@ -71,26 +72,23 @@ class Group(BaseClass):
 
         print(mainrule)
 
-    def __init__(self, name, description='', currency=Currency.Euro,
-                 exchange_rates={}, stamp=now()):
+    def __init__(self, name, description='', currency=Currency.Euro):
         """Group class initialization.
 
         Keyword arguments:
         name -- group name
         description -- group description (default '')
         currency -- group currency enum object (default Euro)
-        exchange_rates -- group exchange rates (default {})
-        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
         """
-        super().__init__(stamp=stamp)
+        super().__init__()
         self.name = name
         self.description = description
         self.currency = currency
-        self.exchange_rates = exchange_rates
 
-        self.members = {}
-        self.purchases = []
-        self.transfers = []
+        self.exchange_rates = {}
+        self._members = {}
+        self._purchases = []
+        self._transfers = []
 
     def __str__(self):
         tmp = '{:}'.format(self.name)
@@ -104,78 +102,73 @@ class Group(BaseClass):
             'name': self.name,
             'description': self.description,
             'currency': self.currency.name,
-            'members': [m.to_dict() for m in self.members.values()],
-            'purchases': [p.to_dict() for p in self.purchases],
-            'transfers': [t.to_dict() for t in self.transfers],
+            'members': [m.to_dict() for m in self._members.values()],
+            'purchases': [p.to_dict() for p in self._purchases],
+            'transfers': [t.to_dict() for t in self._transfers],
             'exchange_rates': {
                 k.name: v for k, v in self.exchange_rates.items()}
         }
 
-    def add_member(self, name, stamp=now()):
+    def add_member(self, name):
         """Add a member to the group.
 
         Keyword arguments:
         name -- member name
-        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
         """
-        if not name:
+        if not name or name.isspace():
             raise(InvalidMemberNameError('Empty member name provided!'))
 
-        if name in self.members:
-            raise(DuplicateMemberError(name, self.members.keys()))
+        if name in self._members:
+            raise(DuplicateMemberError(name, self._members.keys()))
 
-        self.members[name] = Member(self, name, stamp=stamp)
+        tmp = Member(name)
+        self._members[name] = tmp
+        return tmp
 
-    def add_purchase(self, title, purchaser, recipients, amount,
-                     date=now(), currency=None, stamp=now()):
+    def add_purchase(self, title, purchaser, recipients, amount, currency, date):
         """Add a purchase to the group.
 
         Keyword arguments:
+        title -- purchase title
         purchaser -- purchaser name
-        recipients -- recipient name or list of recipient names
+        recipients -- list of recipient names
         amount -- purchase amount
-        date -- a datetime object, a serialized datetime object or a datetime string (default now())
-        title -- purchase title (default 'untitled')
-        currency -- purchase currency (default None = group currency)
-        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        currency -- purchase currency
+        date -- a Stamp object
         """
-
-        tmp = Purchase(self, purchaser, recipients, amount, date=date,
-                       title=title, currency=currency, stamp=stamp)
-
-        self.purchases.append(tmp)
+        tmp = Purchase(self, title, purchaser,
+                       recipients, amount, currency, date)
+        self._purchases.append(tmp)
         return tmp
 
-    def add_transfer(self, title, purchaser, recipients, amount,
-                     date=now(), currency=None, stamp=now()):
+    def add_transfer(self, title, purchaser, recipient, amount, currency, date):
         """Add a transfer to the group.
 
         Keyword arguments:
+        title -- transfer title
         purchaser -- purchaser name
         recipients -- recipient name or list of recipient names
         amount -- transfer amount
-        date -- a datetime object, a serialized datetime object or a datetime string (default now())
-        title -- transfer title (default 'untitled')
-        currency -- transfer currency (default None = group currency)
-        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        currency -- transfer currency
+        date -- a Stamp object
         """
-        tmp = Transfer(self, purchaser, recipients, amount, date=date,
-                       title=title, currency=currency, stamp=stamp)
-
-        self.transfers.append(tmp)
+        tmp = Transfer(self, title, purchaser,
+                       recipient, amount, currency, date)
+        self._transfers.append(tmp)
         return tmp
 
     def balances(self):
         """Generate the balance transfers and return a list of them."""
         balances = []
 
-        ranked = sorted(self.members.values(), key=(lambda x: x.balance))
+        ranked = sorted(self._members.values(), key=(lambda x: x.balance))
         balance_add = {x.name: 0 for x in ranked}
 
         for sender in ranked:
             for receiver in reversed(ranked):
                 if sender == receiver:
                     continue
+
                 sender_balance = sender.balance + balance_add[sender.name]
                 receiver_balance = receiver.balance + \
                     balance_add[receiver.name]
@@ -186,8 +179,7 @@ class Group(BaseClass):
                     balance_add[receiver.name] -= balance
 
                     balances.append(
-                        Balance(self, sender.name, receiver.name,
-                                balance, currency=self.currency)
+                        Balance(self, sender.name, receiver.name, balance, self.currency, Stamp())
                     )
 
         return balances
@@ -207,25 +199,29 @@ class Group(BaseClass):
 
             return amount / self.exchange_rates[from_c]
 
-    def get_member(self, name):
+    def get_member_by_name(self, name):
         """Find and return a member object by name.
 
         Keyword arguments:
         name -- name string
         """
         try:
-            return self.members[name]
+            return self._members[name]
         except KeyError:
-            raise(InvalidMemberError(name, self.members.keys()))
+            raise(InvalidMemberError(name, self._members.keys()))
 
-    def save(self, path, indent=None):
-        # logging.debug('Store a group object to "{:}"'.format(path))
+    @property
+    def number_of_members(self):
+        """Return the number of members."""
+        return len(self._members)
+
+    def save(self, path, indent=4):
         with open(path, 'w') as fp:
             json.dump(self.to_dict(), fp, indent=indent)
 
     @ property
     def turnover(self):
-        return sum(x.amount for x in self.purchases)
+        return sum(x.amount for x in self._purchases)
 
 
 def load_group(path):
@@ -234,35 +230,37 @@ def load_group(path):
     Keyword arguments:
     path -- JSON file path
     """
-    # logging.debug('Load a group object from "{:}"'.format(path))
-
     with open(path, 'r') as fp:
         data = json.load(fp)
 
-    exchange_rates = {Currency[k]: v for k,
-                      v in data['exchange_rates'].items()}
-
+    # group
     group = Group(
-        data['name'], description=data['description'],
-        currency=Currency[data['currency']],
-        exchange_rates=exchange_rates, stamp=data['stamp']
+        data['name'],
+        description=data['description'],
+        currency=Currency[data['currency']]
     )
+    group.set_time(data['stamp'])
+
+    # exchange_rates
+    for k, v in data['exchange_rates'].items():
+        group.exchange_rates[Currency[k]] = v
 
     for member in data['members']:
-        group.add_member(member['name'], stamp=member['stamp'])
+        tmp = group.add_member(member['name'])
+        tmp.set_time(member['stamp'])
 
     for purchase in data['purchases']:
-        group.add_purchase(purchase['title'],
-                           purchase['purchaser'], purchase['recipients'],
-                           purchase['amount'], date=purchase['date'],
-                           currency=Currency[purchase['currency']],
-                           stamp=purchase['stamp'])
+        tmp = group.add_purchase(purchase['title'],
+            purchase['purchaser'], purchase['recipients'],
+            purchase['amount'], currency=Currency[purchase['currency']],
+            date=Stamp(purchase['date']))
+        tmp.set_time(purchase['stamp'])
 
     for transfer in data['transfers']:
-        group.add_transfer(transfer['title'],
-                           transfer['purchaser'], transfer['recipients'],
-                           transfer['amount'], date=transfer['date'],
-                           currency=Currency[transfer['currency']],
-                           stamp=transfer['stamp'])
+        tmp = group.add_transfer(transfer['title'],
+            transfer['purchaser'], transfer['recipients'][0],
+            transfer['amount'], currency=Currency[transfer['currency']],
+            date=Stamp(transfer['date']))
+        tmp.set_time(transfer['stamp'])
 
     return group

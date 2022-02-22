@@ -49,12 +49,21 @@
             "stamp": "23.06.2021 07:57:19"
         }
     ],
-    "transfers": [],
-    "exchange_rates": {
-        "Euro": {
-            "Euro": 1,
-            "USD": 1.19
+    "transfers": [
+        {
+            "purchaser": "member_1",
+            "recipients": [
+                "member_1"
+            ],
+            "amount": 200.0,
+            "currency": "USD",
+            "date": "23.06.2021 07:57:19",
+            "title": "transfer_1",
+            "stamp": "23.06.2021 07:57:19"
         }
+    ],
+    "exchange_rates": {
+        "USD": 1.19
     },
     "stamp": "23.06.2021 07:53:55"
 }

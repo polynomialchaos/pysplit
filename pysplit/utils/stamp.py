@@ -20,76 +20,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import datetime as dt
-from dateutil import tz
 
-# tzlocal = dt.timezone.utc
-tzlocal = tz.tzlocal()
-fmt_local_date = r'%d.%m.%Y'
-fmt_local_time = r'%H:%M:%S'
-fmt_local = '{:} {:}'.format(fmt_local_date, fmt_local_time)
-
-
-def encode_datetime(t, timezone=tzlocal, fmt=fmt_local):
-    """Encode a datetime object with optional time zone info and format string
-    and return a serialized datetime value.
+class Stamp():
+    """Stamp class for storing date and time information.
 
     Keyword arguments:
-    t -- a datetime object
-    timezone -- a time zone object (default tzlocal)
-    fmt -- a format string (default fmt_local)
+    time -- a datetime object or a datetime string (default now())
     """
-    if isinstance(t, float):
-        return t
-    elif isinstance(t, str):
-        return encode_datetime(string_to_datetime(t, fmt=fmt), timezone=timezone)
+    fmt_date = r'%d.%m.%Y'
+    fmt_time = r'%H:%M:%S'
+    fmt_date_time = '{:} {:}'.format(fmt_date, fmt_time)
 
-    t.replace(tzinfo=timezone)
-    return t.timestamp()
+    def __init__(self, time=None):
+        self.time = dt.datetime.now() if time is None else time
 
+    def __str__(self):
+        if self._time.time() == dt.time(0, 0):
+            return self._time.strftime(Stamp.fmt_date)
 
-def datetime_to_string(t, fmt=fmt_local, fmt_date=fmt_local_date):
-    """Parse a given datetime object with optional format string
-    and return a string.
+        return self._time.strftime(Stamp.fmt_date_time)
 
-    Keyword arguments:
-    t -- a datetime object
-    fmt -- a format string (default fmt_local)
-    """
-    if t.time() == dt.time(0, 0):
-        return t.strftime(fmt_date)
+    @property
+    def time(self):
+        return self._time
 
-    return t.strftime(fmt)
-
-
-def decode_datetime(f, timezone=tzlocal):
-    """Decode a serialized datetime value with optional time zone info
-    and return a datetime object.
-
-    Keyword arguments:
-    f -- a serialized datetime value
-    timezone -- a time zone object (default tzlocal)
-    """
-    return dt.datetime.fromtimestamp(f, tz=timezone)
-
-
-def now(timezone=tzlocal):
-    """Return a datetime object from time.time() and optional time zone info.
-
-    Keyword arguments:
-    timezone -- a time zone object (default tzlocal)
-    """
-    return dt.datetime.now(timezone)
-
-
-def string_to_datetime(s, fmt=fmt_local, fmt_date=fmt_local_date):
-    """Parse a string with optional format string
-    and return a datetime object.
-
-    Keyword arguments:
-    s -- a string containing date and time
-    fmt -- a format string (default fmt_local)
-    """
-    try:
-        return dt.datetime.strptime(s, fmt)
-    except ValueError:
-        return dt.datetime.strptime(s, fmt_date)
+    @time.setter
+    def time(self, x):
+        if isinstance(x, dt.datetime):
+            self._time = x
+        elif isinstance(x, str):
+            try:
+                self._time = dt.datetime.strptime(x, Stamp.fmt_date_time)
+            except ValueError:
+                self._time = dt.datetime.strptime(x, Stamp.fmt_date)
+        else:
+            raise TypeError("Got unsupported type {:} ({:})!", type(x), [dt.datetime, str])

@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='pysplit',
@@ -6,7 +6,7 @@ setup(
     description='A simple python package for money pool split development.',
     author='Florian',
     author_email='polynomialchaos@gmail.com',
-    packages=['pysplit'],
+    packages=find_packages(),
     entry_points={
         "console_scripts": [
             'pySplit=pysplit.bin.pySplit:main',

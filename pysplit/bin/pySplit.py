@@ -20,12 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import argparse
-# import logging
-import sys
 from pysplit import *
 from pysplit.version import __version__
-from pysplit.utils import Currency, InvalidMemberError, now
-from pysplit.utils.stamp import datetime_to_string
+from pysplit.utils import Currency, InvalidMemberError
 
 
 def user_input(description, default=None, options=None, func=str):
@@ -47,8 +44,6 @@ def main():
     # define the argument parser
     parser = argparse.ArgumentParser(
         description='pySplit - A simple python package for money pool split development.')
-    # parser.add_argument('-d', '--debug', dest='debug', required=False,
-    #                     action='store_true', help='Provide logging output')
     parser.add_argument('-m', '--member', dest='member', required=False,
                         action='store_true', help='Add member(s) to the group.')
     parser.add_argument('-p', '--purchase', dest='purchase', required=False,
@@ -59,21 +54,6 @@ def main():
                         version='%(prog)s (version {:})'.format(__version__))
     parser.add_argument('path', nargs='?', help='The path to a group file.')
     args = parser.parse_args()
-
-    # # logging
-    # logger = logging.getLogger()
-    # logger.setLevel(logging.DEBUG)
-    # formatter = logging.Formatter('%(levelname)s: %(message)s')
-    # stdout_handler = logging.StreamHandler(sys.stdout)
-    # stdout_handler.setLevel(logging.INFO)
-    # stdout_handler.setFormatter(formatter)
-    # logger.addHandler(stdout_handler)
-
-    # if args.debug:
-    #     file_handler = logging.FileHandler(
-    #         '{:}.log'.format('output'), mode='w')
-    #     file_handler.setFormatter(formatter)
-    #     logger.addHandler(file_handler)
 
     # load or create a group
     if args.path:
@@ -90,7 +70,7 @@ def main():
                       currency=inp_currency)
 
     # add member(s)
-    if args.member or not group.members:
+    if args.member or group.number_of_members == 0:
         while True:
             inp_name = user_input(
                 'Member name (Enter to continue)', default='')
@@ -101,7 +81,7 @@ def main():
 
     # add purchase(s)
     if args.purchase:
-        if not group.members:
+        if group.number_of_members == 0:
             raise InvalidMemberError('No members have been defined!')
 
         members = list(group.members.keys())
@@ -138,7 +118,7 @@ def main():
 
     # add transfer(s)
     if args.transfer:
-        if not group.members:
+        if group.number_of_members == 0:
             raise InvalidMemberError('No members have been defined!')
 
         members = list(group.members.keys())
@@ -180,7 +160,7 @@ def main():
         file_path = user_input('File name',
                                default='{:}.json'.format(tmp))
 
-    group.save(file_path, indent=4)
+    # group.save(file_path, indent=4)
 
 
 if __name__ == '__main__':

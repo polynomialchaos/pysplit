@@ -19,30 +19,25 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import BaseClass, now
+from .utils import Base
 
 
-class Member(BaseClass):
+class Member(Base):
     """Member class derived from pysplit base class."""
 
-    def __init__(self, group, name, stamp=now()):
+    def __init__(self, name):
         """Member class initialization.
 
         Keyword arguments:
-        group -- group object
         name -- member name
-        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
         """
-        super().__init__(stamp=stamp)
-        self.group = group
+        super().__init__()
         self.name = name
 
-        self.purchases = []
-        self.transfers = []
-        self.receives = []
+        self._participations = []
 
     def __str__(self):
-        return '{:} ({:.2f}{:})'.format(self.name, self.balance, self.group.currency)
+        return self.name
 
     def _serialize(self):
         """Convert the object to a JSON conform dictionary and return it."""
@@ -50,59 +45,31 @@ class Member(BaseClass):
             'name': self.name
         }
 
-    def add_purchase(self, purchase):
-        """Add a purchase reference to the member.
+    def add_participation(self, participation):
+        """Add a participation reference to the member.
 
         Keyword arguments:
-        purchase -- a purchase object reference
+        participation -- a participation object reference
         """
-        self.purchases.append(purchase)
-
-    def add_receive(self, receive):
-        """Add a receive reference to the member.
-
-        Keyword arguments:
-        receive -- a purchase of transfer object reference
-        """
-        self.receives.append(receive)
-
-    def add_transfer(self, transfer):
-        """Add a transfer reference to the member.
-
-        Keyword arguments:
-        transfer -- a transfer object reference
-        """
-        self.transfers.append(transfer)
+        self._participations.append(participation)
 
     @property
     def balance(self):
         """Calculate the member balance and return the value in groups currency."""
-        balance = sum([x.amount for x in self.purchases])
-        balance += sum([x.amount for x in self.transfers])
-        balance -= sum([x.get_member_amount(self.name)
-                       for x in self.receives])
+        balance = 0.0
+        for participation in self._participations:
+            if participation.is_purchaser(self.name):
+                balance += participation.amount
+
+            if participation.is_recipient(self.name):
+                balance -= participation.get_amount_per_member()
+
         return balance
 
-    def remove_purchase(self, purchase):
-        """Remove a purchase reference from the member.
+    def remove_participation(self, participation):
+        """Remove a participation reference from the member.
 
         Keyword arguments:
-        transfer -- a purchase object reference
+        transfer -- a participation object reference
         """
-        self.purchases.remove(purchase)
-
-    def remove_receive(self, receive):
-        """Remove a receive reference from the member.
-
-        Keyword arguments:
-        transfer -- a purchase or transfer object reference
-        """
-        self.receives.remove(receive)
-
-    def remove_transfer(self, transfer):
-        """Remove a transfer reference from the member.
-
-        Keyword arguments:
-        transfer -- a transfer object reference
-        """
-        self.transfers.remove(transfer)
+        self._participations.remove(participation)

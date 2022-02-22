@@ -19,25 +19,3 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from pysplit.utils.utils import at_least_1d
-from .purchase import Purchase
-
-
-class Transfer(Purchase):
-    """Transfer class derived from purchase class.
-    This derived class links in member transfers."""
-
-    def __init__(self, group, title, purchaser, recipient, amount, currency, date):
-        """Purchase class initialization.
-
-        Keyword arguments:
-        group -- group object
-        title -- transfer title
-        purchaser -- purchaser name
-        recipient -- recipient name
-        amount -- transfer amount
-        currency -- transfer currency
-        date -- a Stamp object
-        """
-        super().__init__(group, title, purchaser,
-                         at_least_1d(recipient), amount, currency, date)

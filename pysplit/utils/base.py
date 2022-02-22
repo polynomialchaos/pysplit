@@ -19,28 +19,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# import json
-# from .utils import now, BaseException
-# from .member import Member
-# from .purchase import Purchase
-# from .transfer import Transfer
-from .stamp import encode_datetime, datetime_to_string, decode_datetime, now
+from .stamp import Stamp
 
 
-class BaseClass():
+class Base():
     """Base class for pysplit package.
 
     Keyword arguments:
     stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
     """
 
-    def __init__(self, stamp=now()):
+    def __init__(self):
         """Base class initialization.
-
-        Keyword arguments:
-        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
         """
-        self.stamp = stamp
+        self.stamp = Stamp()
 
     def __repr__(self):
         return '<{:} ({:}) - {:}>'.format(self.__class__.__name__, self.stamp, self)
@@ -52,21 +44,15 @@ class BaseClass():
         """Convert the object to a JSON conform dictionary and return it.
         Requires implementation in derived class.
         """
-        raise(NotImplementedError(self.__class__.__name__))
+        return {}
 
     def to_dict(self):
         """Convert the object to a JSON conform dictionary.
         This function calls the _serialize method and includes the base class stamp property.
         """
         tmp = self._serialize()
-        tmp['stamp'] = self.stamp
+        tmp['stamp'] = str(self.stamp)
         return tmp
 
-    @property
-    def stamp(self):
-        tmp = decode_datetime(self._stamp)
-        return datetime_to_string(tmp)
-
-    @stamp.setter
-    def stamp(self, x):
-        self._stamp = encode_datetime(x)
+    def set_time(self, datetime_or_string):
+        self.stamp.time = datetime_or_string

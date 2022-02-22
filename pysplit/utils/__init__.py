@@ -19,9 +19,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import mainrule, rule, at_least_list
-from .stamp import encode_datetime, datetime_to_string, decode_datetime, now
-from .base import BaseClass
+from .utils import at_least_1d
+from .stamp import Stamp
+from .base import Base
 from .error import DuplicateMemberError, InvalidMemberError
 from .error import InvalidMemberNameError, MissingExchangeRateError
 from .currency import Currency

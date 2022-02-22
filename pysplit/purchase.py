@@ -19,60 +19,50 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .utils import at_least_list, BaseClass, encode_datetime, datetime_to_string, decode_datetime, now, Currency
-from .member import Member
+from .utils import at_least_1d, Base
 
 
-class Purchase(BaseClass):
+class Purchase(Base):
     """Purchase class derived from base class.
     This derived class links in member purchases."""
 
-    def __init__(self, group, purchaser, recipients, amount, date=now(),
-                 title='untitled', currency=None, stamp=now()):
+    def __init__(self, group, title, purchaser, recipients, amount, currency, date):
         """Purchase class initialization.
 
         Keyword arguments:
         group -- group object
+        title -- purchase title
         purchaser -- purchaser name
-        recipients -- recipient name or list of recipient names
+        recipients -- list of recipient names
         amount -- purchase amount
-        date -- a datetime object, a serialized datetime object or a datetime string (default now())
-        title -- purchase title (default 'untitled')
-        currency -- purchase currency (default None = group currency)
-        stamp -- a datetime object, a serialized datetime object or a datetime string (default now())
+        currency -- purchase currency
+        date -- a Stamp object
         """
-        super().__init__(stamp=stamp)
+        super().__init__()
         self.group = group
+        self.title = title
         self.purchaser = purchaser
         self.recipients = recipients
         self.amount = amount
-        self.currency = self.group.currency if currency is None else currency
+        self.currency = currency
         self.date = date
-        self.title = title
 
         self._link()
 
     def __del__(self):
-        self._remove_link()
+        self._unlink()
 
     def __str__(self):
-        tmp = '{:} ({:})'.format(self.title, self.date)
-        tmp += ' {:}: {:.2f}{:} -> {:}'.format(self.purchaser.name,
-                                               self._amount, self.currency,
-                                               ', '.join(self.recipients.keys()))
-        return tmp
+        return '{:} ({:}) {:}: {:.2f}{:} -> {:}'.format(
+            self.title, self.date, self.purchaser.name,
+            self._amount, self.currency, ', '.join(self.recipients.keys())
+        )
 
     def _link(self):
         """Link the purchase object in the members objects."""
-        self.purchaser.add_purchase(self)
-        for recipient in self.recipients:
-            self.recipients[recipient].add_receive(self)
-
-    def _remove_link(self):
-        """Remove the purchase object from the members objects.."""
-        self.purchaser.remove_purchase(self)
-        for recipient in self.recipients:
-            self.recipients[recipient].remove_receive(self)
+        members = set(list(self.recipients.values()) + [self.purchaser])
+        for member in members:
+            member.add_participation(self)
 
     def _serialize(self):
         """Convert the object to a JSON conform dictionary and return it."""
@@ -81,9 +71,15 @@ class Purchase(BaseClass):
             'recipients': [x for x in self.recipients],
             'amount': self._amount,
             'currency': self.currency.name,
-            'date': self.date,
+            'date': str(self.date),
             'title': self.title
         }
+
+    def _unlink(self):
+        """Remove the purchase object from the members objects.."""
+        members = set(list(self.recipients.values()) + [self.purchaser])
+        for member in members:
+            member.remove_participation(self)
 
     @property
     def amount(self):
@@ -93,26 +89,20 @@ class Purchase(BaseClass):
     def amount(self, x):
         self._amount = float(x)
 
-    @property
-    def date(self):
-        tmp = decode_datetime(self._date)
-        return datetime_to_string(tmp)
-
-    @date.setter
-    def date(self, x):
-        self._date = encode_datetime(x)
-
-    def get_member_amount(self, name):
+    def get_amount_per_member(self):
         """Calculate the member amount in group currency and return it."""
-        if name not in self.recipients:
-            return 0.0
-
         return self.amount / self.number_of_recipients
+
+    def is_purchaser(self, name):
+        return self.purchaser.name == name
+
+    def is_recipient(self, name):
+        return name in self.recipients
 
     @property
     def number_of_recipients(self):
         """Return the number of recipients."""
-        return len(self.recipients)
+        return len(self.recipients.keys())
 
     @property
     def purchaser(self):
@@ -120,7 +110,7 @@ class Purchase(BaseClass):
 
     @purchaser.setter
     def purchaser(self, x):
-        self._purchaser = self.group.get_member(x)
+        self._purchaser = self.group.get_member_by_name(x)
 
     @property
     def recipients(self):
@@ -128,5 +118,4 @@ class Purchase(BaseClass):
 
     @recipients.setter
     def recipients(self, x):
-        x = at_least_list(x)
-        self._recipients = {xx: self.group.get_member(xx) for xx in x}
+        self._recipients = {xx: self.group.get_member_by_name(xx) for xx in x}
