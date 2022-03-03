@@ -44,6 +44,8 @@ def main():
     # define the argument parser
     parser = argparse.ArgumentParser(
         description='pySplit - A simple python package for money pool split development.')
+    parser.add_argument('-e', '--exchange', dest='exchange', required=False,
+                        action='store_true', help='Add excahnge rate(s) to the group.')
     parser.add_argument('-m', '--member', dest='member', required=False,
                         action='store_true', help='Add member(s) to the group.')
     parser.add_argument('-p', '--purchase', dest='purchase', required=False,
@@ -68,6 +70,24 @@ def main():
 
         group = Group(inp_title, description=inp_description,
                       currency=inp_currency)
+
+    # add exchange(s)
+    if args.exchange:
+        currencies = [c for c in Currency if c != group.currency]
+        while currencies:
+
+            inp_currency = user_input('Exchange rate currency',
+                                        default=currencies[0].name,
+                                        options=[x.name for x in currencies],
+                                        func=(lambda x: Currency[x]))
+            inp_amount = user_input('{:} exchange rate'.format(inp_currency.name), func=float)
+
+            group.exchange_rates[inp_currency] = inp_amount
+
+            if not user_input('Add another exchange rate',
+                                default='n', options=['y', 'N'],
+                                func=(lambda x: x.lower() == 'y')):
+                break
 
     # add member(s)
     if args.member or group.number_of_members == 0:
@@ -160,7 +180,7 @@ def main():
         file_path = user_input('File name',
                                default='{:}.json'.format(tmp))
 
-    # group.save(file_path, indent=4)
+    group.save(file_path, indent=4)
 
 
 if __name__ == '__main__':
