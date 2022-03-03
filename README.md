@@ -16,6 +16,8 @@ The **pySplit** application either loads an existing case from the specified fil
 
 The user hase the options to
 
+* add exchange rate(s) if the command line option **-e** or **--exchange** is provided, or to
+
 * add member(s) if the command line option **-m** or **--member** is provided, or to
 
 * add purchase(s) if the command line option **-p** or **--purchase** is provided, or to
