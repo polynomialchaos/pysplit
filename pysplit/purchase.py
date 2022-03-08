@@ -36,7 +36,7 @@ class Purchase(Base):
         recipients -- list of recipient names
         amount -- purchase amount
         currency -- purchase currency
-        date -- a Stamp object
+        date -- a TimeStamp object
         """
         super().__init__()
         self.group = group

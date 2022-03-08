@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from .stamp import Stamp
+from .time_stamp import TimeStamp
 
 
 class Base():
@@ -32,7 +32,7 @@ class Base():
     def __init__(self):
         """Base class initialization.
         """
-        self.stamp = Stamp()
+        self.stamp = TimeStamp()
 
     def __repr__(self):
         return '<{:} ({:}) - {:}>'.format(self.__class__.__name__, self.stamp, self)

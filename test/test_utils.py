@@ -21,7 +21,7 @@
 # SOFTWARE.
 import unittest
 from datetime import datetime
-from pysplit.utils import at_least_1d, Base, Stamp
+from pysplit.utils import at_least_1d, Base, TimeStamp
 
 
 class TestUtils(unittest.TestCase):
@@ -48,9 +48,9 @@ class TestUtils(unittest.TestCase):
         # Test: overload construction
         now = datetime.now()
 
-        stamp_1 = Stamp()
-        stamp_2 = Stamp(now)
-        stamp_3 = Stamp(TestUtils.date_time_string)
+        stamp_1 = TimeStamp()
+        stamp_2 = TimeStamp(now)
+        stamp_3 = TimeStamp(TestUtils.date_time_string)
 
         # Test: set short date string
         print(stamp_1)

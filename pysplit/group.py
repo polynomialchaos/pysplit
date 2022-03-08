@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from .utils import Base, DuplicateMemberError, MissingExchangeRateError, Stamp
+from .utils import Base, DuplicateMemberError, MissingExchangeRateError, TimeStamp
 from .utils import InvalidMemberError, InvalidMemberNameError
 from .utils import Currency
 from .member import Member
@@ -134,7 +134,7 @@ class Group(Base):
         recipients -- list of recipient names
         amount -- purchase amount
         currency -- purchase currency
-        date -- a Stamp object
+        date -- a TimeStamp object
         """
         tmp = Purchase(self, title, purchaser,
                        recipients, amount, currency, date)
@@ -150,7 +150,7 @@ class Group(Base):
         recipients -- recipient name or list of recipient names
         amount -- transfer amount
         currency -- transfer currency
-        date -- a Stamp object
+        date -- a TimeStamp object
         """
         tmp = Transfer(self, title, purchaser,
                        recipient, amount, currency, date)
@@ -179,7 +179,8 @@ class Group(Base):
                     balance_add[receiver.name] -= balance
 
                     balances.append(
-                        Balance(self, sender.name, receiver.name, balance, self.currency, Stamp())
+                        Balance(self, sender.name, receiver.name,
+                            balance, self.currency, TimeStamp())
                     )
 
         return balances
@@ -253,14 +254,14 @@ def load_group(path):
         tmp = group.add_purchase(purchase['title'],
             purchase['purchaser'], purchase['recipients'],
             purchase['amount'], currency=Currency[purchase['currency']],
-            date=Stamp(purchase['date']))
+            date=TimeStamp(purchase['date']))
         tmp.set_time(purchase['stamp'])
 
     for transfer in data['transfers']:
         tmp = group.add_transfer(transfer['title'],
             transfer['purchaser'], transfer['recipients'][0],
             transfer['amount'], currency=Currency[transfer['currency']],
-            date=Stamp(transfer['date']))
+            date=TimeStamp(transfer['date']))
         tmp.set_time(transfer['stamp'])
 
     return group

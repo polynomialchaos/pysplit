@@ -37,7 +37,7 @@ class Transfer(Purchase):
         recipient -- recipient name
         amount -- transfer amount
         currency -- transfer currency
-        date -- a Stamp object
+        date -- a TimeStamp object
         """
         super().__init__(group, title, purchaser,
                          at_least_1d(recipient), amount, currency, date)

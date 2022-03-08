@@ -34,7 +34,7 @@ class Balance(Transfer):
         purchaser -- purchaser name
         recipient -- recipient name
         amount -- balance amount
-        date -- a Stamp object
+        date -- a TimeStamp object
         """
         super().__init__(group, 'Pending balance',
                          purchaser, recipient, amount, currency, date)

@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from .utils import at_least_1d
-from .stamp import Stamp
+from .time_stamp import TimeStamp
 from .base import Base
 from .error import DuplicateMemberError, InvalidMemberError
 from .error import InvalidMemberNameError, MissingExchangeRateError

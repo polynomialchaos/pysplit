@@ -21,8 +21,8 @@
 # SOFTWARE.
 import datetime as dt
 
-class Stamp():
-    """Stamp class for storing date and time information.
+class TimeStamp():
+    """TimeStamp class for storing date and time information.
 
     Keyword arguments:
     time -- a datetime object or a datetime string (default now())
@@ -36,9 +36,9 @@ class Stamp():
 
     def __str__(self):
         if self._time.time() == dt.time(0, 0):
-            return self._time.strftime(Stamp.fmt_date)
+            return self._time.strftime(TimeStamp.fmt_date)
 
-        return self._time.strftime(Stamp.fmt_date_time)
+        return self._time.strftime(TimeStamp.fmt_date_time)
 
     @property
     def time(self):
@@ -50,8 +50,8 @@ class Stamp():
             self._time = x
         elif isinstance(x, str):
             try:
-                self._time = dt.datetime.strptime(x, Stamp.fmt_date_time)
+                self._time = dt.datetime.strptime(x, TimeStamp.fmt_date_time)
             except ValueError:
-                self._time = dt.datetime.strptime(x, Stamp.fmt_date)
+                self._time = dt.datetime.strptime(x, TimeStamp.fmt_date)
         else:
             raise TypeError("Got unsupported type {:} ({:})!", type(x), [dt.datetime, str])
